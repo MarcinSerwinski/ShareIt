@@ -1,0 +1,25 @@
+<nav class="container container--70">
+    <ul class="nav--actions">
+        <li><a href="#">Zaloguj</a></li>
+        <li class="highlighted"><a href="#">Załóż konto</a></li>
+    </ul>
+    <ul class="nav--actions">
+        <li class="logged-user">
+            Witaj Agata
+            <ul class="dropdown">
+                <li><a href="#">Profil</a></li>
+                <li><a href="#">Ustawienia</a></li>
+                <li><a href="#">Wyloguj</a></li>
+            </ul>
+        </li>
+    </ul>
+
+    <ul>
+        <li><a href='{% url 'home:home' %}' class="btn btn--without-border active">Start</a></li>
+        <li><a href='{% url 'home:add-donation' %}' class="btn btn--without-border">O co chodzi?</a></li>
+        <li><a href="index.html#about-us" class="btn btn--without-border">O nas</a></li>
+        <li><a href="index.html#help" class="btn btn--without-border">Fundacje i organizacje</a></li>
+        <li><a href="form.html" class="btn btn--without-border">Przekaż dary</a></li>
+        <li><a href="index.html#contact" class="btn btn--without-border">Kontakt</a></li>
+    </ul>
+</nav>

@@ -10,4 +10,5 @@ urlpatterns = [
     path('add-donation/', AddDonation.as_view(), name='add-donation'),
     path('login/', views.login_view, name='login'),
     path('register/', Register.as_view(), name='register'),
+    path('logout/', views.logout_view, name='logout'),
 ]

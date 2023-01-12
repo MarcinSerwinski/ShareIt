@@ -4,12 +4,12 @@
         <li class="highlighted"><a href="{% url 'home:register' %}">Załóż konto</a></li>
     </ul>
     <ul class="nav--actions">
-        <li class="logged-user">
-            Witaj Agata
+        <li class="logged-user">{% if user.is_authenticated %}
+            Witaj {{ user }}
             <ul class="dropdown">
                 <li><a href="#">Profil</a></li>
                 <li><a href="#">Ustawienia</a></li>
-                <li><a href="#">Wyloguj</a></li>
+                <li><a href="{% url 'home:logout' %}">Wyloguj</a></li>{% endif %}
             </ul>
         </li>
     </ul>

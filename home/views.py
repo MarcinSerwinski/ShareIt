@@ -1,6 +1,7 @@
 import random
 
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.views import LoginView
 from django.db.models import Sum
 from django.shortcuts import render, redirect
 from django.views import View
@@ -71,3 +72,7 @@ def login_view(request):
             return redirect('home:register')
     else:
         return render(request, 'home/login.html', {})
+
+def logout_view(request):
+    logout(request)
+    return redirect('home:home')

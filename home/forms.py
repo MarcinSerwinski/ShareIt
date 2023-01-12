@@ -1,25 +1,7 @@
 from django import forms
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
-
-
-# class RegistrationForm(UserCreationForm):
-#     email = forms.EmailField(required=True)
-#
-#     class Meta:
-#         model = User
-#         fields = ('first_name', 'last_name', 'email')
-#
-#     def save(self, commit=True):
-#         user = super().save(commit=False)
-#         user.set_password(self.cleaned_data.get('password'))
-#         user.email = self.cleaned_data['email']
-#         if commit:
-#             user.save()
-#
-#         return user
-
 
 class RegistrationForm(forms.ModelForm):
     first_name = forms.CharField(max_length=128, widget=forms.TextInput(attrs={'class': 'form-group',
@@ -44,3 +26,5 @@ class RegistrationForm(forms.ModelForm):
         if password1 and password2 and password1 != password2:
             raise ValidationError('Hasła nie są takie same')
         return password2
+
+

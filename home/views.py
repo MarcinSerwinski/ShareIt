@@ -21,7 +21,6 @@ class LandingPage(View):
         return render(request, 'home/index.html',
                       {'sum_of_bags': sum_of_bags, 'sum_of_institutions': sum_of_institutions,
                        'fundations': fundations, 'organizations': organizations, 'local_charities': local_charities})
-        # 'a':a
 
 
 class AddDonation(TemplateView):
@@ -35,6 +34,7 @@ class Login(TemplateView):
 class Register(View):
     template_name = 'home/register.html'
     model = User
+
     def get(self, request):
         form = forms.RegistrationForm()
         return render(request, self.template_name, {'form': form})

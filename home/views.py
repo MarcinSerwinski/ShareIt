@@ -1,10 +1,11 @@
 import random
 
 from django.db.models import Sum
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.views import View
 from django.views.generic import TemplateView, FormView, ListView
 
+from home import forms
 from home.models import *
 
 
@@ -19,7 +20,7 @@ class LandingPage(View):
         return render(request, 'home/index.html',
                       {'sum_of_bags': sum_of_bags, 'sum_of_institutions': sum_of_institutions,
                        'fundations': fundations, 'organizations': organizations, 'local_charities': local_charities})
-                       # 'a':a
+        # 'a':a
 
 
 class AddDonation(TemplateView):
@@ -30,5 +31,19 @@ class Login(TemplateView):
     template_name = 'home/login.html'
 
 
-class Register(TemplateView):
+class Register(View):
+    model = User
+    form_class = forms.RegistrationForm()
     template_name = 'home/register.html'
+
+    def get(self, request):
+        form = forms.RegistrationForm()
+        return render(request, self.template_name, {'form': form})
+
+    def post(self, request):
+        form = forms.RegistrationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('home:login')
+        else:
+            return render(request, self.template_name, {'form': form})

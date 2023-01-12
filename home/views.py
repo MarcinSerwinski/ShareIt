@@ -4,6 +4,7 @@ from django.db.models import Sum
 from django.shortcuts import render, redirect
 from django.views import View
 from django.views.generic import TemplateView, FormView, ListView
+from django.contrib.auth.models import User
 
 from home import forms
 from home.models import *
@@ -32,10 +33,8 @@ class Login(TemplateView):
 
 
 class Register(View):
-    model = User
-    form_class = forms.RegistrationForm()
     template_name = 'home/register.html'
-
+    model = User
     def get(self, request):
         form = forms.RegistrationForm()
         return render(request, self.template_name, {'form': form})
@@ -43,7 +42,17 @@ class Register(View):
     def post(self, request):
         form = forms.RegistrationForm(request.POST)
         if form.is_valid():
-            form.save()
+            email = form.cleaned_data['email']
+            password = form.cleaned_data['password1']
+            first_name = form.cleaned_data['first_name']
+            last_name = form.cleaned_data['last_name']
+            user = User()
+            user.username = email
+            user.email = email
+            user.first_name = first_name
+            user.last_name = last_name
+            user.set_password(password)
+            user.save()
             return redirect('home:login')
         else:
             return render(request, self.template_name, {'form': form})

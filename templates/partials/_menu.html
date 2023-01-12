@@ -3,8 +3,8 @@
         <li><a href="{% url 'home:login' %}">Zaloguj</a></li>
         <li class="highlighted"><a href="{% url 'home:register' %}">Załóż konto</a></li>
     </ul>
-    <ul class="nav--actions">
-        <li class="logged-user">{% if user.is_authenticated %}
+    <ul class="nav--actions">{% if user.is_authenticated %}
+        <li class="logged-user">
             Witaj {{ user }}
             <ul class="dropdown">
                 <li><a href="#">Profil</a></li>

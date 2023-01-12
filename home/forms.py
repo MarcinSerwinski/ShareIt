@@ -44,3 +44,12 @@ class RegistrationForm(forms.ModelForm):
         if password1 and password2 and password1 != password2:
             raise ValidationError('Hasła nie są takie same')
         return password2
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.set_password(self.cleaned_data.get('password'))
+
+        if commit:
+            user.save()
+
+        return user

@@ -2,6 +2,7 @@ from django.urls import reverse
 
 from home.models import *
 
+
 def test_landing_page_get(db, client):
     endpoint = reverse('home:home')
     response = client.get(endpoint)

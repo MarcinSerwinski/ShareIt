@@ -5,7 +5,7 @@
 
         <div class="slogan container container--90">
             <div class="slogan--item">
-                <h1>                    Oddaj rzeczy, których już nie chcesz<br/>
+                <h1> Oddaj rzeczy, których już nie chcesz<br/>
                     <span class="uppercase">potrzebującym</span>
                 </h1>
 
@@ -58,55 +58,49 @@
                 <div data-step="1" class="active">
                     <h3>Zaznacz co chcesz oddać:</h3>
 
-                    <div class="form-group form-group--checkbox">
+                    <div class="form-group form-group--checkbox">{% for category in categories %}
                         <label>
-                            <input
-                                    type="checkbox"
-                                    name="categories"
-                                    value="clothes-to-use"
-                            />
+                            <input type="checkbox" name="categories" value="clothes-to-use" />
                             <span class="checkbox"></span>
-                            <span class="description"
-                            >ubrania, które nadają się do ponownego użycia</span
-                            >
-                        </label>
+                            <span class="description">{{ category.name }}</span>
+                        </label>{% endfor %}
                     </div>
 
-                    <div class="form-group form-group--checkbox">
-                        <label>
-                            <input
-                                    type="checkbox"
-                                    name="categories"
-                                    value="clothes-useless"
-                            />
-                            <span class="checkbox"></span>
-                            <span class="description">ubrania, do wyrzucenia</span>
-                        </label>
-                    </div>
+                    {#                    <div class="form-group form-group--checkbox">#}
+                    {#                        <label>#}
+                    {#                            <input#}
+                    {#                                    type="checkbox"#}
+                    {#                                    name="categories"#}
+                    {#                                    value="clothes-useless"#}
+                    {#                            />#}
+                    {#                            <span class="checkbox"></span>#}
+                    {#                            <span class="description">ubrania, do wyrzucenia</span>#}
+                    {#                        </label>#}
+                    {#                    </div>#}
 
-                    <div class="form-group form-group--checkbox">
-                        <label>
-                            <input type="checkbox" name="categories" value="toys"/>
-                            <span class="checkbox"></span>
-                            <span class="description">zabawki</span>
-                        </label>
-                    </div>
-
-                    <div class="form-group form-group--checkbox">
-                        <label>
-                            <input type="checkbox" name="categories" value="books"/>
-                            <span class="checkbox"></span>
-                            <span class="description">książki</span>
-                        </label>
-                    </div>
-
-                    <div class="form-group form-group--checkbox">
-                        <label>
-                            <input type="checkbox" name="categories" value="other"/>
-                            <span class="checkbox"></span>
-                            <span class="description">inne</span>
-                        </label>
-                    </div>
+                    {#                    <div class="form-group form-group--checkbox">#}
+                    {#                        <label>#}
+                    {#                            <input type="checkbox" name="categories" value="toys"/>#}
+                    {#                            <span class="checkbox"></span>#}
+                    {#                            <span class="description">zabawki</span>#}
+                    {#                        </label>#}
+                    {#                    </div>#}
+                    {##}
+                    {#                    <div class="form-group form-group--checkbox">#}
+                    {#                        <label>#}
+                    {#                            <input type="checkbox" name="categories" value="books"/>#}
+                    {#                            <span class="checkbox"></span>#}
+                    {#                            <span class="description">książki</span>#}
+                    {#                        </label>#}
+                    {#                    </div>#}
+                    {##}
+                    {#                    <div class="form-group form-group--checkbox">#}
+                    {#                        <label>#}
+                    {#                            <input type="checkbox" name="categories" value="other"/>#}
+                    {#                            <span class="checkbox"></span>#}
+                    {#                            <span class="description">inne</span>#}
+                    {#                        </label>#}
+                    {#                    </div>#}
 
                     <div class="form-group form-group--buttons">
                         <button type="button" class="btn next-step">Dalej</button>
@@ -135,32 +129,17 @@
                 <div data-step="3">
                     <h3>Wybierz organizacje, której chcesz pomóc:</h3>
 
-                    <div class="form-group form-group--checkbox">
-                        <label>
-                            <input type="radio" name="organization" value="old"/>
-                            <span class="checkbox radio"></span>
-                            <span class="description">
-                  <div class="title">Fundacja “Bez domu”</div>
-                  <div class="subtitle">
-                    Cel i misja: Pomoc dla osób nie posiadających miejsca
-                    zamieszkania
-                  </div>
-                </span>
-                        </label>
-                    </div>
+                    <div class="form-group form-group--checkbox" >
+                        {% for institution in institutions %}<label>
+                        <input type="radio" name="organization" value="old"/>
+                        <span class="checkbox radio"></span>
+                        <span class="description">
+                        <div class="title">{{ institution.name }}</div>
+                        <div class="subtitle">{{ institution.description }}
 
-                    <div class="form-group form-group--checkbox">
-                        <label>
-                            <input type="radio" name="organization" value="old"/>
-                            <span class="checkbox radio"></span>
-                            <span class="description">
-                  <div class="title">Fundacja “Dla dzieci"</div>
-                  <div class="subtitle">
-                    Cel i misja: Pomoc osobom znajdującym się w trudnej sytuacji
-                    życiowej.
                   </div>
-                </span>
-                        </label>
+                        </span>
+                        </label>{% endfor %}
                     </div>
 
                     <div class="form-group form-group--buttons">
@@ -274,5 +253,6 @@
                 </div>
             </form>
         </div>
+
     </section>
 {% endblock %}

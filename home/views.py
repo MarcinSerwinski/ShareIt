@@ -1,11 +1,12 @@
 import random
 
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LoginView
 from django.db.models import Sum
 from django.shortcuts import render, redirect
 from django.views import View
-from django.views.generic import TemplateView, FormView, ListView
+from django.views.generic import TemplateView, FormView, ListView, CreateView
 from django.contrib.auth.models import User
 
 from home import forms
@@ -20,14 +21,28 @@ class LandingPage(View):
         fundations = Institution.objects.filter(type=1)
         organizations = Institution.objects.filter(type=2)
         local_charities = Institution.objects.filter(type=3)
+        a = Institution.objects.all()
+        for fundation in a:
+            for categories in fundation.categories.all():
+                b = categories.name
+                print(b)
         return render(request, 'home/index.html',
                       {'sum_of_bags': sum_of_bags, 'sum_of_institutions': sum_of_institutions,
                        'fundations': fundations, 'organizations': organizations, 'local_charities': local_charities})
-        # 'a':a
 
 
-class AddDonation(TemplateView):
+class AddDonation(LoginRequiredMixin, View):
+    login_url = 'home:login'
     template_name = 'home/form.html'
+    model = Donation
+
+    def get(self, request):
+        categories = Category.objects.all()
+        institutions = Institution.objects.all()
+        return render(request, self.template_name, {'categories': categories, 'institutions': institutions})
+
+    def post(self, request):
+        categories = request.POST['categories']
 
 
 class Register(View):
@@ -57,8 +72,6 @@ class Register(View):
             return render(request, self.template_name, {'form': form})
 
 
-
-
 def login_view(request):
     if request.method == 'POST':
         username = request.POST['email']
@@ -72,6 +85,7 @@ def login_view(request):
             return redirect('home:register')
     else:
         return render(request, 'home/login.html', {})
+
 
 def logout_view(request):
     logout(request)

@@ -8,20 +8,28 @@ document.addEventListener("DOMContentLoaded", function () {
         let userCategories
         // Transition step1 > step2:
         buttonOne.addEventListener('click', function (e) {
-            // e.stopImmediatePropagation()
+
             const categoryList = document.querySelector('#category-list')
             const categories = [...categoryList.querySelectorAll('input')]
             console.log(categories)
             userCategories = []
             categories.forEach(category => {
-
                 if (category.checked) {
                     userCategories.push(category.value)
                     console.log(userCategories)
                 }
             })
+            const emptyCategory = categoryList.querySelector('.empty-category')
+            if (userCategories.length === 0) {
+                e.stopImmediatePropagation()
+                emptyCategory.style.display = 'flex'
+            } else {
+                emptyCategory.style.display = 'none'
+            }
 
         })
+
+
         //     Transition step2 > step3:
         const buttonTwo = document.querySelector("#button-step-2")
         buttonTwo.addEventListener('click', function (e) {
@@ -40,7 +48,7 @@ document.addEventListener("DOMContentLoaded", function () {
             const emptyMessage = institutionList.querySelector('.empty-list')
             if (filtredInstitutions.length) {
                 emptyMessage.style.display = 'none'
-            }else{
+            } else {
                 emptyMessage.style.display = 'flex'
             }
         })

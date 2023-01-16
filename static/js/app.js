@@ -11,12 +11,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
             const categoryList = document.querySelector('#category-list')
             const categories = [...categoryList.querySelectorAll('input')]
-            console.log(categories)
             userCategories = []
             categories.forEach(category => {
                 if (category.checked) {
                     userCategories.push(category.value)
-                    console.log(userCategories)
                 }
             })
             const emptyCategory = categoryList.querySelector('.empty-category')
@@ -45,6 +43,19 @@ document.addEventListener("DOMContentLoaded", function () {
                     institution.style.display = "none"
                 }
             })
+
+            const bagsInput = e.target.parentElement.parentElement.querySelector("input");
+            const emptyBags = document.querySelector('#empty-bags')
+            console.log(emptyBags)
+            if (bagsInput.value) {
+               emptyBags.style.display = 'none'
+            } else {
+
+                e.stopImmediatePropagation()
+                emptyBags.style.display = 'flex'
+            }
+
+
             const emptyMessage = institutionList.querySelector('.empty-list')
             if (filtredInstitutions.length) {
                 emptyMessage.style.display = 'none'

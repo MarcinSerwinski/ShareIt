@@ -135,7 +135,7 @@
 
                     <div class="form-group form-group--checkbox" id="institution-list" >
                         {% for institution in institutions %}<label>
-                        <input type="radio" name="organization" value="old"/>
+                        <input type="radio" name="organization" value={{ institution.name }} />
                         <span class="checkbox radio"></span>
                         <span class="description">
                         <div class="title">{{ institution.name }}</div>
@@ -149,8 +149,9 @@
 
                     <div class="form-group form-group--buttons">
                         <button type="button" class="btn prev-step">Wstecz</button>
-                        <button type="button" class="btn next-step">Dalej</button>
+                        <button id="button-step-3" type="button" class="btn next-step">Dalej</button>
                     </div>
+                    <div id="empty-institution" class="empty-institution">Wybierz instytucję.</div>
                 </div>
 
                 <!-- STEP 4 -->

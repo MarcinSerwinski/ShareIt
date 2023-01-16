@@ -48,19 +48,36 @@ document.addEventListener("DOMContentLoaded", function () {
             const emptyBags = document.querySelector('#empty-bags')
             console.log(emptyBags)
             if (bagsInput.value) {
-               emptyBags.style.display = 'none'
+                emptyBags.style.display = 'none'
             } else {
-
                 e.stopImmediatePropagation()
                 emptyBags.style.display = 'flex'
             }
-
 
             const emptyMessage = institutionList.querySelector('.empty-list')
             if (filtredInstitutions.length) {
                 emptyMessage.style.display = 'none'
             } else {
                 emptyMessage.style.display = 'flex'
+            }
+        })
+        //     Transition step3 > step4:
+        const buttonThree = document.querySelector("#button-step-3")
+        buttonThree.addEventListener('click', function (e) {
+            const institutionList = document.querySelector('#institution-list')
+            const institutionInput = [...institutionList.querySelectorAll('input')]
+            let userInstitutions = []
+            institutionInput.forEach(institution => {
+                if (institution.checked) {
+                    userInstitutions.push(institution.value)
+                }
+            })
+            const emptyInstitution = document.querySelector('#empty-institution')
+            if (userInstitutions.length === 0) {
+                e.stopImmediatePropagation()
+                emptyInstitution.style.display = 'flex'
+            } else {
+                emptyInstitution.style.display = 'none'
             }
         })
     }

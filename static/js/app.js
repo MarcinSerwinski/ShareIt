@@ -2,7 +2,6 @@ document.addEventListener("DOMContentLoaded", function () {
     /**
      * HomePage - Help section
      */
-        // Check if correct page:
     const institutionList = document.querySelector('#institution-list')
     if (institutionList) {
         const buttonOne = document.querySelector('#button-step-1')
@@ -12,10 +11,13 @@ document.addEventListener("DOMContentLoaded", function () {
             // e.stopImmediatePropagation()
             const categoryList = document.querySelector('#category-list')
             const categories = [...categoryList.querySelectorAll('input')]
+            console.log(categories)
             userCategories = []
             categories.forEach(category => {
+
                 if (category.checked) {
                     userCategories.push(category.value)
+                    console.log(userCategories)
                 }
             })
 

@@ -21,11 +21,7 @@ class LandingPage(View):
         fundations = Institution.objects.filter(type=1)
         organizations = Institution.objects.filter(type=2)
         local_charities = Institution.objects.filter(type=3)
-        a = Institution.objects.all()
-        for fundation in a:
-            for categories in fundation.categories.all():
-                b = categories.name
-                print(b)
+
         return render(request, 'home/index.html',
                       {'sum_of_bags': sum_of_bags, 'sum_of_institutions': sum_of_institutions,
                        'fundations': fundations, 'organizations': organizations, 'local_charities': local_charities})

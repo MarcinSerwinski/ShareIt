@@ -79,17 +79,17 @@ document.addEventListener("DOMContentLoaded", function () {
                 emptyInstitution.style.display = 'none'
             }
         })
-
+        // Transition step 4 > 5
         const buttonFour = document.querySelector('#button-step-4')
         buttonFour.addEventListener('click', function (e) {
+            const addressSummary = document.querySelector('.address-list')
             const donationDetails = document.querySelector('#pick-up-details')
             const donationInput = [...donationDetails.querySelectorAll('input')]
             let userDonation = []
-            console.log(userDonation)
+
             donationInput.forEach(donation => {
                 userDonation.push(donation.value)
             })
-
             let numberValidation = /[a-zA-Z]/g
             const emptyDetails = document.querySelector('#empty-details')
             const wrongPhoneNumber = document.querySelector('#wrong-data')
@@ -97,24 +97,19 @@ document.addEventListener("DOMContentLoaded", function () {
             if (userDonation[0].length <= 2) {
                 e.stopImmediatePropagation()
                 emptyDetails.style.display = 'flex'
-            }
-            else if (userDonation[1].length <= 2) {
+            } else if (userDonation[1].length <= 2) {
                 e.stopImmediatePropagation()
                 emptyDetails.style.display = 'flex'
-            }
-            else if (userDonation[2].length <= 4) {
+            } else if (userDonation[2].length <= 4) {
                 e.stopImmediatePropagation()
                 wrongZipCode.style.display = 'flex'
-            }
-            else if (numberValidation.test(userDonation[2])) {
+            } else if (numberValidation.test(userDonation[2])) {
                 e.stopImmediatePropagation()
                 wrongZipCode.style.display = 'flex'
-            }
-            else if (userDonation[3].length <= 8 || userDonation[3].length >= 20) {
+            } else if (userDonation[3].length <= 8 || userDonation[3].length >= 20) {
                 e.stopImmediatePropagation()
                 wrongPhoneNumber.style.display = 'flex'
-            }
-            else if (numberValidation.test(userDonation[3])) {
+            } else if (numberValidation.test(userDonation[3])) {
                 e.stopImmediatePropagation()
                 wrongPhoneNumber.style.display = 'flex'
             } else {
@@ -122,7 +117,32 @@ document.addEventListener("DOMContentLoaded", function () {
                 wrongPhoneNumber.style.display = 'none'
                 wrongZipCode.style.display = 'none'
             }
+            // Filling up donation summary with user inputs:
+            const newLiAddress = document.createElement('li')
+            const newLiCity = document.createElement('li')
+            const newLiZipCode = document.createElement('li')
+            const newLiPhoneNumber = document.createElement('li')
+
+            newLiAddress.classList.add('addressSummary')
+            newLiAddress.innerText = userDonation[0]
+            addressSummary.appendChild(newLiAddress)
+
+            newLiCity.classList.add('addressSummary')
+            newLiCity.innerText = userDonation[1]
+            addressSummary.appendChild(newLiCity)
+
+            newLiZipCode.classList.add('addressSummary')
+            newLiZipCode.innerText = userDonation[2]
+            addressSummary.appendChild(newLiZipCode)
+
+            newLiPhoneNumber.classList.add('addressSummary')
+            newLiPhoneNumber.innerText = userDonation[3]
+            addressSummary.appendChild(newLiPhoneNumber)
+
+
+
         })
+
 
     }
 

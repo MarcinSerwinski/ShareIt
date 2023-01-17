@@ -158,7 +158,7 @@
                 <div data-step="4">
                     <h3>Podaj adres oraz termin odbioru rzecz przez kuriera:</h3>
 
-                    <div class="form-section form-section--columns">
+                    <div id="pick-up-details" class="form-section form-section--columns">
                         <div class="form-section--column">
                             <h4>Adres odbioru</h4>
                             <div class="form-group form-group--inline">
@@ -202,8 +202,11 @@
                     </div>
                     <div class="form-group form-group--buttons">
                         <button type="button" class="btn prev-step">Wstecz</button>
-                        <button type="button" class="btn next-step">Dalej</button>
+                        <button id="button-step-4" type="button" class="btn next-step">Dalej</button>
                     </div>
+                    <div id="wrong-data" class="empty-details">Błędny numer telefonu.</div>
+                    <div id="wrong-zip-code" class="empty-details">Błędny kod pocztowy.</div>
+                    <div id="empty-details" class="empty-details">Wypełnij wszystkie pola lub podane nazwy są zbyt krótkie.</div>
                 </div>
 
                 <!-- STEP 5 -->

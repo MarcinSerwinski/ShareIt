@@ -46,7 +46,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
             const bagsInput = e.target.parentElement.parentElement.querySelector("input");
             const emptyBags = document.querySelector('#empty-bags')
-            console.log(emptyBags)
             if (bagsInput.value) {
                 emptyBags.style.display = 'none'
             } else {
@@ -61,10 +60,10 @@ document.addEventListener("DOMContentLoaded", function () {
                 emptyMessage.style.display = 'flex'
             }
         })
-        //     Transition step3 > step4:
+        //     Transition step3 > step4 ( user won't be able to continue if no institution is selected ):
         const buttonThree = document.querySelector("#button-step-3")
         buttonThree.addEventListener('click', function (e) {
-            const institutionList = document.querySelector('#institution-list')
+            // const institutionList = document.querySelector('#institution-list')
             const institutionInput = [...institutionList.querySelectorAll('input')]
             let userInstitutions = []
             institutionInput.forEach(institution => {
@@ -80,6 +79,51 @@ document.addEventListener("DOMContentLoaded", function () {
                 emptyInstitution.style.display = 'none'
             }
         })
+
+        const buttonFour = document.querySelector('#button-step-4')
+        buttonFour.addEventListener('click', function (e) {
+            const donationDetails = document.querySelector('#pick-up-details')
+            const donationInput = [...donationDetails.querySelectorAll('input')]
+            let userDonation = []
+            console.log(userDonation)
+            donationInput.forEach(donation => {
+                userDonation.push(donation.value)
+            })
+
+            let numberValidation = /[a-zA-Z]/g
+            const emptyDetails = document.querySelector('#empty-details')
+            const wrongPhoneNumber = document.querySelector('#wrong-data')
+            const wrongZipCode = document.querySelector('#wrong-data')
+            if (userDonation[0].length <= 2) {
+                e.stopImmediatePropagation()
+                emptyDetails.style.display = 'flex'
+            }
+            else if (userDonation[1].length <= 2) {
+                e.stopImmediatePropagation()
+                emptyDetails.style.display = 'flex'
+            }
+            else if (userDonation[2].length <= 4) {
+                e.stopImmediatePropagation()
+                wrongZipCode.style.display = 'flex'
+            }
+            else if (numberValidation.test(userDonation[2])) {
+                e.stopImmediatePropagation()
+                wrongZipCode.style.display = 'flex'
+            }
+            else if (userDonation[3].length <= 8 || userDonation[3].length >= 20) {
+                e.stopImmediatePropagation()
+                wrongPhoneNumber.style.display = 'flex'
+            }
+            else if (numberValidation.test(userDonation[3])) {
+                e.stopImmediatePropagation()
+                wrongPhoneNumber.style.display = 'flex'
+            } else {
+                emptyDetails.style.display = 'none'
+                wrongPhoneNumber.style.display = 'none'
+                wrongZipCode.style.display = 'none'
+            }
+        })
+
     }
 
 

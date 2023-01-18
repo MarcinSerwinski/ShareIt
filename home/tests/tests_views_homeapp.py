@@ -25,3 +25,11 @@ def test_registration_page_post(db, client):
     assert response.status_code == 302
     assert response.url.startswith(reverse('home:login'))
     assert User.objects.get(first_name='TestFirstName')
+
+
+def test_login_page_get(db, client, user):
+    client.force_login(user)
+    endpoint = reverse('home:login')
+    response = client.get(endpoint)
+    assert response.status_code == 200
+    assert '>Ustawienia</a></li>' in str(response.content)

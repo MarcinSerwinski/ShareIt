@@ -1,5 +1,7 @@
 import random
 
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.views import LoginView
 from django.db.models import Sum
 from django.shortcuts import render, redirect
 from django.views import View
@@ -27,10 +29,6 @@ class AddDonation(TemplateView):
     template_name = 'home/form.html'
 
 
-class Login(TemplateView):
-    template_name = 'home/login.html'
-
-
 class Register(View):
     template_name = 'home/register.html'
     model = User
@@ -56,3 +54,24 @@ class Register(View):
             return redirect('home:login')
         else:
             return render(request, self.template_name, {'form': form})
+
+
+
+
+def login_view(request):
+    if request.method == 'POST':
+        username = request.POST['email']
+        password = request.POST['password']
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+            return redirect('home:home')
+
+        else:
+            return redirect('home:register')
+    else:
+        return render(request, 'home/login.html', {})
+
+def logout_view(request):
+    logout(request)
+    return redirect('home:home')

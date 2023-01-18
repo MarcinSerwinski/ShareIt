@@ -3,13 +3,13 @@
         <li><a href="{% url 'home:login' %}">Zaloguj</a></li>
         <li class="highlighted"><a href="{% url 'home:register' %}">Załóż konto</a></li>
     </ul>
-    <ul class="nav--actions">
+    <ul class="nav--actions">{% if user.is_authenticated %}
         <li class="logged-user">
-            Witaj Agata
+            Witaj {{ user }}
             <ul class="dropdown">
                 <li><a href="#">Profil</a></li>
                 <li><a href="#">Ustawienia</a></li>
-                <li><a href="#">Wyloguj</a></li>
+                <li><a href="{% url 'home:logout' %}">Wyloguj</a></li>{% endif %}
             </ul>
         </li>
     </ul>

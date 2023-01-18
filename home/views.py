@@ -38,8 +38,6 @@ class AddDonation(LoginRequiredMixin, View):
         return render(request, self.template_name, {'categories': categories, 'institutions': institutions})
 
     def post(self, request):
-        if request.method == 'POST':
-
             quantity = request.POST.get('quantity')
             categories = request.POST.get('category.pk')
             institution = request.POST.get('organization')
@@ -50,8 +48,8 @@ class AddDonation(LoginRequiredMixin, View):
             pick_up_date = request.POST.get('data')
             pick_up_time = request.POST.get('time')
             user = request.user
-            inst = int(institution)
-            donation = Donation(quantity=quantity, institution_id=inst, address=address,
+
+            donation = Donation(quantity=quantity, institution_id=institution, address=address,
                                 phone_number=phone_number, city=city, zip_code=zip_code, pick_up_date=pick_up_date,
                                 pick_up_time=pick_up_time, user=user)
             donation.save()

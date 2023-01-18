@@ -58,14 +58,17 @@ document.addEventListener("DOMContentLoaded", function () {
                 emptyMessage.style.display = 'none'
             } else {
                 emptyMessage.style.display = 'flex'
+
             }
         })
+
         //     Transition step3 > step4 ( user won't be able to continue if no institution is selected ):
         const buttonThree = document.querySelector("#button-step-3")
         buttonThree.addEventListener('click', function (e) {
             // const institutionList = document.querySelector('#institution-list')
             const institutionInput = [...institutionList.querySelectorAll('input')]
             let userInstitutions = []
+            console.log(userInstitutions)
             institutionInput.forEach(institution => {
                 if (institution.checked) {
                     userInstitutions.push(institution.value)
@@ -78,6 +81,13 @@ document.addEventListener("DOMContentLoaded", function () {
             } else {
                 emptyInstitution.style.display = 'none'
             }
+
+            const institutionSummary = document.querySelector('.institution-summary')
+            const newSpanInstitution = document.createElement('span')
+            newSpanInstitution.setAttribute('class', "summary--text")
+            newSpanInstitution.innerText = userInstitutions[0]
+            institutionSummary.appendChild(newSpanInstitution)
+
         })
         // Transition step 4 > 5
         const buttonFour = document.querySelector('#button-step-4')
@@ -138,7 +148,6 @@ document.addEventListener("DOMContentLoaded", function () {
             newLiPhoneNumber.classList.add('addressSummary')
             newLiPhoneNumber.innerText = userDonation[3]
             addressSummary.appendChild(newLiPhoneNumber)
-
 
 
         })
@@ -208,7 +217,7 @@ document.addEventListener("DOMContentLoaded", function () {
             e.preventDefault();
             const page = e.target.dataset.page;
 
-            console.log(page);
+            // console.log(page);
         }
     }
 

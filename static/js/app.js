@@ -46,6 +46,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
             const bagsInput = e.target.parentElement.parentElement.querySelector("input");
             const emptyBags = document.querySelector('#empty-bags')
+            console.log(bagsInput.value)
             if (bagsInput.value) {
                 emptyBags.style.display = 'none'
             } else {
@@ -60,12 +61,17 @@ document.addEventListener("DOMContentLoaded", function () {
                 emptyMessage.style.display = 'flex'
 
             }
+            //     Add amount of bags to donation summary:
+            const bagsSummary = document.querySelector('.bags-summary')
+            const newSpanBags = document.createElement('span')
+            newSpanBags.setAttribute('class', "summary--text")
+            newSpanBags.innerText = `Liczba worków: ${bagsInput.value}.`
+            bagsSummary.appendChild(newSpanBags)
         })
 
         //     Transition step3 > step4 ( user won't be able to continue if no institution is selected ):
         const buttonThree = document.querySelector("#button-step-3")
         buttonThree.addEventListener('click', function (e) {
-            // const institutionList = document.querySelector('#institution-list')
             const institutionInput = [...institutionList.querySelectorAll('input')]
             let userInstitutions = []
             console.log(userInstitutions)
@@ -81,25 +87,34 @@ document.addEventListener("DOMContentLoaded", function () {
             } else {
                 emptyInstitution.style.display = 'none'
             }
-
+            // Add institution name to donation summary:
             const institutionSummary = document.querySelector('.institution-summary')
             const newSpanInstitution = document.createElement('span')
             newSpanInstitution.setAttribute('class', "summary--text")
-            newSpanInstitution.innerText = userInstitutions[0]
+            newSpanInstitution.innerText = `Dla ${userInstitutions[0]}.`
             institutionSummary.appendChild(newSpanInstitution)
 
         })
         // Transition step 4 > 5
         const buttonFour = document.querySelector('#button-step-4')
         buttonFour.addEventListener('click', function (e) {
-            const addressSummary = document.querySelector('.address-list')
+
             const donationDetails = document.querySelector('#pick-up-details')
             const donationInput = [...donationDetails.querySelectorAll('input')]
-            let userDonation = []
+            const dateDetails = document.querySelector('#pick-up-date')
+            const dateInput = [...dateDetails.querySelectorAll('input')]
 
+            let userDates = []
+            console.log(userDates)
+            dateInput.forEach(date => {
+                userDates.push(date.value)
+            })
+
+            let userDonation = []
             donationInput.forEach(donation => {
                 userDonation.push(donation.value)
             })
+
             let numberValidation = /[a-zA-Z]/g
             const emptyDetails = document.querySelector('#empty-details')
             const wrongPhoneNumber = document.querySelector('#wrong-data')
@@ -128,10 +143,14 @@ document.addEventListener("DOMContentLoaded", function () {
                 wrongZipCode.style.display = 'none'
             }
             // Filling up donation summary with user inputs:
+            const addressSummary = document.querySelector('.address-list')
             const newLiAddress = document.createElement('li')
             const newLiCity = document.createElement('li')
             const newLiZipCode = document.createElement('li')
             const newLiPhoneNumber = document.createElement('li')
+            const dateSummary = document.querySelector('.pick-up-date')
+            const newLiDate = document.createElement('li')
+            const newLiTime = document.createElement('li')
 
             newLiAddress.classList.add('addressSummary')
             newLiAddress.innerText = userDonation[0]
@@ -149,6 +168,13 @@ document.addEventListener("DOMContentLoaded", function () {
             newLiPhoneNumber.innerText = userDonation[3]
             addressSummary.appendChild(newLiPhoneNumber)
 
+            newLiDate.classList.add('dateSummary')
+            newLiDate.innerText = `Dnia: ${userDates[0]}`
+            dateSummary.appendChild(newLiDate)
+
+            newLiTime.classList.add('dateSummary')
+            newLiTime.innerText = `O godzinie: ${userDates[1]}`
+            dateSummary.appendChild(newLiTime)
 
         })
 

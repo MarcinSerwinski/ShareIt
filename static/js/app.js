@@ -1,7 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
-    /**
-     * HomePage - Help section
-     */
+
     const institutionList = document.querySelector('#institution-list')
     if (institutionList) {
         const buttonOne = document.querySelector('#button-step-1')
@@ -115,10 +113,27 @@ document.addEventListener("DOMContentLoaded", function () {
                 userDonation.push(donation.value)
             })
 
+            function getTomorrow() {
+                let today = new Date();
+                let tomorrow = new Date(today);
+                tomorrow.setHours(0);
+                tomorrow.setMinutes(0);
+                tomorrow.setSeconds(0);
+                tomorrow.setDate(tomorrow.getDate() + 1);
+                return tomorrow;
+            }
+
+            function validateDate(date_data) {
+                let inputDate = new Date(date_data);
+                return inputDate >= getTomorrow();
+            }
+
+
             let numberValidation = /[a-zA-Z]/g
             const emptyDetails = document.querySelector('#empty-details')
             const wrongPhoneNumber = document.querySelector('#wrong-data')
-            const wrongZipCode = document.querySelector('#wrong-data')
+            const wrongZipCode = document.querySelector('#wrong-zip-code')
+            const wrongDate = document.querySelector('#wrong-date')
             if (userDonation[0].length <= 2) {
                 e.stopImmediatePropagation()
                 emptyDetails.style.display = 'flex'
@@ -137,6 +152,10 @@ document.addEventListener("DOMContentLoaded", function () {
             } else if (numberValidation.test(userDonation[3])) {
                 e.stopImmediatePropagation()
                 wrongPhoneNumber.style.display = 'flex'
+            } else if (!validateDate(userDates[0])) {
+                e.stopImmediatePropagation()
+                wrongDate.style.display = 'flex'
+
             } else {
                 emptyDetails.style.display = 'none'
                 wrongPhoneNumber.style.display = 'none'
@@ -181,7 +200,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
     }
 
-
+    /**
+     * HomePage - Help section
+     */
     class Help {
         constructor($el) {
             this.$el = $el;

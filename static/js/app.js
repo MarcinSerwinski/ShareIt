@@ -72,10 +72,12 @@ document.addEventListener("DOMContentLoaded", function () {
         buttonThree.addEventListener('click', function (e) {
             const institutionInput = [...institutionList.querySelectorAll('input')]
             let userInstitutions = []
+
             console.log(userInstitutions)
             institutionInput.forEach(institution => {
+                console.log(institution)
                 if (institution.checked) {
-                    userInstitutions.push(institution.value)
+                    userInstitutions.push(institution.id)
                 }
             })
             const emptyInstitution = document.querySelector('#empty-institution')
@@ -445,11 +447,11 @@ document.addEventListener("DOMContentLoaded", function () {
          *
          * TODO: validation, send data to server
          */
-        submit(e) {
-            e.preventDefault();
-            this.currentStep++;
-            this.updateForm();
-        }
+        // submit(e) {
+        //     e.preventDefault();
+        //     this.currentStep++;
+        //     this.updateForm();
+        // }
     }
 
     const form = document.querySelector(".form--steps");

@@ -24,21 +24,24 @@ def create_institution(db, create_category):
                          (3, 'Zbiórka lokalna')]
 
     institution = Institution.objects.create(name='TestNameInstitution',
-                                      description='TestDescriptionInstitution',
-                                      type=institution_types[0][0])
-    # b = institution.categories.add(create_category.pk)
+                                             description='TestDescriptionInstitution',
+                                             type=institution_types[0][0])
+    institution.categories.set([create_category])
     return institution
+
 
 @pytest.fixture()
 def create_donation(db, create_category, create_institution, user):
     """Create model Donation"""
-    return Donation.objects.create(quantity=1,
-                                   address='TestAddress',
-                                   phone_number='1234567890',
-                                   institution_id=create_institution.id,
-                                   city='TestCity',
-                                   zip_code='123-123',
-                                   pick_up_date='2023-01-23',
-                                   pick_up_time='12:30',
-                                   user_id=user.id,
-                                   )
+    donation = Donation.objects.create(quantity=1,
+                                       address='TestAddress',
+                                       phone_number='1234567890',
+                                       institution_id=create_institution.pk,
+                                       city='TestCity',
+                                       zip_code='123-123',
+                                       pick_up_date='2023-01-23',
+                                       pick_up_time='12:30',
+                                       user_id=user.id,
+                                       )
+    donation.categories.set([create_category])
+    return donation

@@ -54,7 +54,7 @@ def test_add_donation_post(db, client, user, create_institution, create_category
     client.force_login(user)
     form_url = reverse('home:add-donation')
 
-    data = {'quantity': 1, 'address': 'testAddress', 'categories': create_category,
+    data = {'quantity': 1, 'address': 'testAddress', 'category.pk': create_category.pk,
             'organization': create_institution.pk, 'phone': '123123123', 'city': 'testCity',
             'postcode': '12-123',
             'data': '2023-01-23', 'time': '12:30', 'user': user}

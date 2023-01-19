@@ -11,11 +11,9 @@ class RegistrationForm(forms.ModelForm):
                                                                               'placeholder': 'Nazwisko'}), label='')
     email = forms.EmailField(max_length=128, widget=forms.EmailInput(attrs={'class': 'form-group',
                                                                             'placeholder': 'Email'}), label='')
-    password1 = forms.CharField(max_length=128, widget=forms.PasswordInput(attrs={'class': 'form-group',
-                                                                                  'placeholder': 'Hasło'}), label='')
-    password2 = forms.CharField(max_length=128, widget=forms.PasswordInput(attrs={'class': 'form-group',
-                                                                                  'placeholder': 'Powtórz hasło'}),
-                                label='')
+    password1 = forms.CharField(max_length=128, widget=forms.PasswordInput(attrs={'placeholder': 'Hasło'}), label='Hasło')
+
+    password2 = forms.CharField(max_length=128, widget=forms.PasswordInput(attrs={'placeholder': 'Powtórz hasło'}))
 
     class Meta:
         model = get_user_model()
@@ -25,7 +23,7 @@ class RegistrationForm(forms.ModelForm):
         password1 = self.cleaned_data.get("password1")
         password2 = self.cleaned_data.get("password2")
         if password1 and password2 and password1 != password2:
-            raise ValidationError('Hasła nie są takie same')
+            raise ValidationError('')
         return password2
 
     def save(self, commit=True):

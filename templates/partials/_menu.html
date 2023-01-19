@@ -7,7 +7,7 @@
         <li class="logged-user">
             Witaj {{ user }}
             <ul class="dropdown">
-                <li><a href="#">Profil</a></li>
+                <li><a href="{% url 'home:profile' %}">Profil</a></li>
                 <li><a href="#">Ustawienia</a></li>
                 <li><a href="{% url 'home:logout' %}">Wyloguj</a></li>{% endif %}
             </ul>

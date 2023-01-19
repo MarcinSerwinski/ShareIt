@@ -47,6 +47,12 @@ document.addEventListener("DOMContentLoaded", function () {
             console.log(bagsInput.value)
             if (bagsInput.value) {
                 emptyBags.style.display = 'none'
+                //     Add amount of bags to donation summary:
+                const bagsSummary = document.querySelector('.bags-summary')
+                const newSpanBags = document.createElement('span')
+                newSpanBags.setAttribute('class', "summary--text")
+                newSpanBags.innerText = `Liczba worków: ${bagsInput.value}.`
+                bagsSummary.appendChild(newSpanBags)
             } else {
                 e.stopImmediatePropagation()
                 emptyBags.style.display = 'flex'
@@ -58,13 +64,9 @@ document.addEventListener("DOMContentLoaded", function () {
             } else {
                 emptyMessage.style.display = 'flex'
 
+
             }
-            //     Add amount of bags to donation summary:
-            const bagsSummary = document.querySelector('.bags-summary')
-            const newSpanBags = document.createElement('span')
-            newSpanBags.setAttribute('class', "summary--text")
-            newSpanBags.innerText = `Liczba worków: ${bagsInput.value}.`
-            bagsSummary.appendChild(newSpanBags)
+
         })
 
         //     Transition step3 > step4 ( user won't be able to continue if no institution is selected ):
@@ -86,13 +88,15 @@ document.addEventListener("DOMContentLoaded", function () {
                 emptyInstitution.style.display = 'flex'
             } else {
                 emptyInstitution.style.display = 'none'
+
+                // Add institution name to donation summary:
+                const institutionSummary = document.querySelector('.institution-summary')
+                const newSpanInstitution = document.createElement('span')
+                newSpanInstitution.setAttribute('class', "summary--text")
+                newSpanInstitution.innerText = `Dla ${userInstitutions[0]}.`
+                institutionSummary.appendChild(newSpanInstitution)
             }
-            // Add institution name to donation summary:
-            const institutionSummary = document.querySelector('.institution-summary')
-            const newSpanInstitution = document.createElement('span')
-            newSpanInstitution.setAttribute('class', "summary--text")
-            newSpanInstitution.innerText = `Dla ${userInstitutions[0]}.`
-            institutionSummary.appendChild(newSpanInstitution)
+
 
         })
         // Transition step 4 > 5
@@ -162,40 +166,42 @@ document.addEventListener("DOMContentLoaded", function () {
                 emptyDetails.style.display = 'none'
                 wrongPhoneNumber.style.display = 'none'
                 wrongZipCode.style.display = 'none'
+
+                // Filling up donation summary with user inputs:
+                const addressSummary = document.querySelector('.address-list')
+                const newLiAddress = document.createElement('li')
+                const newLiCity = document.createElement('li')
+                const newLiZipCode = document.createElement('li')
+                const newLiPhoneNumber = document.createElement('li')
+                const dateSummary = document.querySelector('.pick-up-date')
+                const newLiDate = document.createElement('li')
+                const newLiTime = document.createElement('li')
+
+                newLiAddress.classList.add('addressSummary')
+                newLiAddress.innerText = userDonation[0]
+                addressSummary.appendChild(newLiAddress)
+
+                newLiCity.classList.add('addressSummary')
+                newLiCity.innerText = userDonation[1]
+                addressSummary.appendChild(newLiCity)
+
+                newLiZipCode.classList.add('addressSummary')
+                newLiZipCode.innerText = userDonation[2]
+                addressSummary.appendChild(newLiZipCode)
+
+                newLiPhoneNumber.classList.add('addressSummary')
+                newLiPhoneNumber.innerText = userDonation[3]
+                addressSummary.appendChild(newLiPhoneNumber)
+
+                newLiDate.classList.add('dateSummary')
+                newLiDate.innerText = `Dnia: ${userDates[0]}`
+                dateSummary.appendChild(newLiDate)
+
+                newLiTime.classList.add('dateSummary')
+                newLiTime.innerText = `O godzinie: ${userDates[1]}`
+                dateSummary.appendChild(newLiTime)
             }
-            // Filling up donation summary with user inputs:
-            const addressSummary = document.querySelector('.address-list')
-            const newLiAddress = document.createElement('li')
-            const newLiCity = document.createElement('li')
-            const newLiZipCode = document.createElement('li')
-            const newLiPhoneNumber = document.createElement('li')
-            const dateSummary = document.querySelector('.pick-up-date')
-            const newLiDate = document.createElement('li')
-            const newLiTime = document.createElement('li')
 
-            newLiAddress.classList.add('addressSummary')
-            newLiAddress.innerText = userDonation[0]
-            addressSummary.appendChild(newLiAddress)
-
-            newLiCity.classList.add('addressSummary')
-            newLiCity.innerText = userDonation[1]
-            addressSummary.appendChild(newLiCity)
-
-            newLiZipCode.classList.add('addressSummary')
-            newLiZipCode.innerText = userDonation[2]
-            addressSummary.appendChild(newLiZipCode)
-
-            newLiPhoneNumber.classList.add('addressSummary')
-            newLiPhoneNumber.innerText = userDonation[3]
-            addressSummary.appendChild(newLiPhoneNumber)
-
-            newLiDate.classList.add('dateSummary')
-            newLiDate.innerText = `Dnia: ${userDates[0]}`
-            dateSummary.appendChild(newLiDate)
-
-            newLiTime.classList.add('dateSummary')
-            newLiTime.innerText = `O godzinie: ${userDates[1]}`
-            dateSummary.appendChild(newLiTime)
 
         })
 

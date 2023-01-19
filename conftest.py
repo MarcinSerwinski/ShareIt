@@ -22,11 +22,12 @@ def create_institution(db, create_category):
     institution_types = [(1, 'Fundacja'),
                          (2, 'Organizacja pozarządowa'),
                          (3, 'Zbiórka lokalna')]
-    return Institution.objects.create(name='TestNameInstitution',
-                                      description='TestDescriptionInstitution',
-                                      type=institution_types[0][0],
-                                      )
 
+    institution = Institution.objects.create(name='TestNameInstitution',
+                                      description='TestDescriptionInstitution',
+                                      type=institution_types[0][0])
+    # b = institution.categories.add(create_category.pk)
+    return institution
 
 @pytest.fixture()
 def create_donation(db, create_category, create_institution, user):

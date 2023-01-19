@@ -1,4 +1,5 @@
 from django.urls import reverse
+from pytest_django.asserts import assertTemplateUsed
 
 from home.models import *
 
@@ -9,12 +10,16 @@ def test_landing_page_get(db, client):
     assert response.status_code == 200
     assert '<h2>Wystarczą 4 proste kroki</h2>' in response.content.decode('UTF-8')
     assert '<h3>Zdecyduj komu chcesz pomóc</h3>' in response.content.decode('UTF-8')
+    assertTemplateUsed(response, 'home/index.html')
+    assertTemplateUsed(response, 'base.html')
+    assertTemplateUsed(response, 'partials/_menu.html')
 
 
 def test_registration_page_get(db, client):
     endpoint = reverse('home:register')
     response = client.get(endpoint)
     assert response.status_code == 200
+    assertTemplateUsed(response, 'home/register.html')
 
 
 def test_registration_page_post(db, client):
@@ -27,9 +32,33 @@ def test_registration_page_post(db, client):
     assert User.objects.get(first_name='TestFirstName')
 
 
+
 def test_login_page_get(db, client, user):
     client.force_login(user)
     endpoint = reverse('home:login')
     response = client.get(endpoint)
     assert response.status_code == 200
     assert '>Ustawienia</a></li>' in str(response.content)
+    assertTemplateUsed(response, 'home/login.html')
+
+
+def test_add_donation_get(db, client, user):
+    client.force_login(user)
+    endpoint = reverse('home:add-donation')
+    response = client.get(endpoint)
+    assert response.status_code == 200
+    assert '<h3>Zaznacz co chcesz oddać:</h3>' in response.content.decode('UTF-8')
+    assertTemplateUsed(response, 'home/form.html')
+
+
+# def test_add_donation_post(db, client, user, create_institution):
+#     client.force_login(user)
+#     form_url = reverse('home:add-donation')
+#     ins = create_institution.pk
+#
+#     data = {'quantity': 1,  'address': 'testAddress', 'institution': ins, 'phone_number': '123123123', 'city': 'testCity', 'zip_code': '12-123', 'pick_up_date': '2023-01-23',
+#             'pick_up_time': '12:30', 'user': user.id}
+#     response = client.post(form_url, data)
+#     assert response.status_code == 302
+#     assert response.url.startswith(reverse('home:home'))
+#     assert Donation.objects.get(address='testAddress')

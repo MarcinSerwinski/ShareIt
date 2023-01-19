@@ -50,16 +50,16 @@ def test_add_donation_get(db, client, user):
     assertTemplateUsed(response, 'home/form.html')
 
 
-# def test_add_donation_post(db, client, user, create_institution, create_category, create_donation):
-#     client.force_login(user)
-#     form_url = reverse('home:add-donation')
-#
-#     data = {'quantity': 1, 'address': 'testAddress', 'categories': create_category,
-#             'institution_id': create_donation.institution.pk, 'phone_number': '123123123', 'city': 'testCity',
-#             'zip_code': '12-123',
-#             'pick_up_date': '2023-01-23', 'pick_up_time': '12:30', 'user': user}
-#
-#     response = client.post(form_url, data)
-#     assert response.status_code == 302
-#     assert response.url.startswith(reverse('home:home'))
-#     assert Donation.objects.get(address='testAddress')
+def test_add_donation_post(db, client, user, create_institution, create_category, create_donation):
+    client.force_login(user)
+    form_url = reverse('home:add-donation')
+
+    data = {'quantity': 1, 'address': 'testAddress', 'categories': create_category,
+            'organization': create_institution.pk, 'phone': '123123123', 'city': 'testCity',
+            'postcode': '12-123',
+            'data': '2023-01-23', 'time': '12:30', 'user': user}
+
+    response = client.post(form_url, data)
+    assert response.status_code == 302
+    assert response.url.startswith(reverse('home:home'))
+    assert Donation.objects.get(address='testAddress')

@@ -1,11 +1,12 @@
 import random
 
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LoginView
 from django.db.models import Sum
 from django.shortcuts import render, redirect
 from django.views import View
-from django.views.generic import TemplateView, FormView, ListView
+from django.views.generic import TemplateView, FormView, ListView, CreateView
 from django.contrib.auth.models import User
 
 from home import forms
@@ -20,13 +21,41 @@ class LandingPage(View):
         fundations = Institution.objects.filter(type=1)
         organizations = Institution.objects.filter(type=2)
         local_charities = Institution.objects.filter(type=3)
+
         return render(request, 'home/index.html',
                       {'sum_of_bags': sum_of_bags, 'sum_of_institutions': sum_of_institutions,
                        'fundations': fundations, 'organizations': organizations, 'local_charities': local_charities})
 
 
-class AddDonation(TemplateView):
+class AddDonation(LoginRequiredMixin, View):
+    login_url = 'home:login'
     template_name = 'home/form.html'
+    model = Donation
+
+    def get(self, request):
+        categories = Category.objects.all()
+        institutions = Institution.objects.all()
+        return render(request, self.template_name, {'categories': categories, 'institutions': institutions})
+
+    def post(self, request):
+            quantity = request.POST.get('quantity')
+            categories = request.POST.get('category.pk')
+            institution = request.POST.get('organization')
+            address = request.POST.get('address')
+            phone_number = request.POST.get('phone')
+            city = request.POST.get('city')
+            zip_code = request.POST.get('postcode')
+            pick_up_date = request.POST.get('data')
+            pick_up_time = request.POST.get('time')
+            user = request.user
+
+            donation = Donation(quantity=quantity, institution_id=institution, address=address,
+                                phone_number=phone_number, city=city, zip_code=zip_code, pick_up_date=pick_up_date,
+                                pick_up_time=pick_up_time, user=user)
+            donation.save()
+            donation.categories.add(categories)
+            return redirect('home:home')
+
 
 
 class Register(View):
@@ -56,8 +85,6 @@ class Register(View):
             return render(request, self.template_name, {'form': form})
 
 
-
-
 def login_view(request):
     if request.method == 'POST':
         username = request.POST['email']
@@ -71,6 +98,7 @@ def login_view(request):
             return redirect('home:register')
     else:
         return render(request, 'home/login.html', {})
+
 
 def logout_view(request):
     logout(request)

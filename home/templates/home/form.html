@@ -5,7 +5,7 @@
 
         <div class="slogan container container--90">
             <div class="slogan--item">
-                <h1>                    Oddaj rzeczy, których już nie chcesz<br/>
+                <h1> Oddaj rzeczy, których już nie chcesz<br/>
                     <span class="uppercase">potrzebującym</span>
                 </h1>
 
@@ -53,63 +53,59 @@
         <div class="form--steps-container">
             <div class="form--steps-counter">Krok <span>1</span>/5</div>
 
-            <form action="form-confirmation.html" method="post">
+            <form method="post">{% csrf_token %}
                 <!-- STEP 1: class .active is switching steps -->
                 <div data-step="1" class="active">
                     <h3>Zaznacz co chcesz oddać:</h3>
 
-                    <div class="form-group form-group--checkbox">
+                    <div class="form-group form-group--checkbox" id="category-list">{% for category in categories %}
                         <label>
-                            <input
-                                    type="checkbox"
-                                    name="categories"
-                                    value="clothes-to-use"
-                            />
+                            <input type="checkbox" name="{{ category.pk }}" value="{{ category.name }}" />
                             <span class="checkbox"></span>
-                            <span class="description"
-                            >ubrania, które nadają się do ponownego użycia</span
-                            >
-                        </label>
+                            <span class="description">{{ category.name }}</span>
+
+                        </label>{% endfor %}
+                        <div class="empty-category">Wybierz chociaż jedną kategorię.</div>
                     </div>
 
-                    <div class="form-group form-group--checkbox">
-                        <label>
-                            <input
-                                    type="checkbox"
-                                    name="categories"
-                                    value="clothes-useless"
-                            />
-                            <span class="checkbox"></span>
-                            <span class="description">ubrania, do wyrzucenia</span>
-                        </label>
-                    </div>
+                    {#                    <div class="form-group form-group--checkbox">#}
+                    {#                        <label>#}
+                    {#                            <input#}
+                    {#                                    type="checkbox"#}
+                    {#                                    name="categories"#}
+                    {#                                    value="clothes-useless"#}
+                    {#                            />#}
+                    {#                            <span class="checkbox"></span>#}
+                    {#                            <span class="description">ubrania, do wyrzucenia</span>#}
+                    {#                        </label>#}
+                    {#                    </div>#}
 
-                    <div class="form-group form-group--checkbox">
-                        <label>
-                            <input type="checkbox" name="categories" value="toys"/>
-                            <span class="checkbox"></span>
-                            <span class="description">zabawki</span>
-                        </label>
-                    </div>
-
-                    <div class="form-group form-group--checkbox">
-                        <label>
-                            <input type="checkbox" name="categories" value="books"/>
-                            <span class="checkbox"></span>
-                            <span class="description">książki</span>
-                        </label>
-                    </div>
-
-                    <div class="form-group form-group--checkbox">
-                        <label>
-                            <input type="checkbox" name="categories" value="other"/>
-                            <span class="checkbox"></span>
-                            <span class="description">inne</span>
-                        </label>
-                    </div>
+                    {#                    <div class="form-group form-group--checkbox">#}
+                    {#                        <label>#}
+                    {#                            <input type="checkbox" name="categories" value="toys"/>#}
+                    {#                            <span class="checkbox"></span>#}
+                    {#                            <span class="description">zabawki</span>#}
+                    {#                        </label>#}
+                    {#                    </div>#}
+                    {##}
+                    {#                    <div class="form-group form-group--checkbox">#}
+                    {#                        <label>#}
+                    {#                            <input type="checkbox" name="categories" value="books"/>#}
+                    {#                            <span class="checkbox"></span>#}
+                    {#                            <span class="description">książki</span>#}
+                    {#                        </label>#}
+                    {#                    </div>#}
+                    {##}
+                    {#                    <div class="form-group form-group--checkbox">#}
+                    {#                        <label>#}
+                    {#                            <input type="checkbox" name="categories" value="other"/>#}
+                    {#                            <span class="checkbox"></span>#}
+                    {#                            <span class="description">inne</span>#}
+                    {#                        </label>#}
+                    {#                    </div>#}
 
                     <div class="form-group form-group--buttons">
-                        <button type="button" class="btn next-step">Dalej</button>
+                        <button id="button-step-1" type="button" class="btn next-step">Dalej</button>
                     </div>
                 </div>
 
@@ -120,60 +116,49 @@
                     <div class="form-group form-group--inline">
                         <label>
                             Liczba 60l worków:
-                            <input type="number" name="bags" step="1" min="1"/>
+                            <input type="number" name="quantity" step="1" min="1"/>
                         </label>
                     </div>
 
                     <div class="form-group form-group--buttons">
                         <button type="button" class="btn prev-step">Wstecz</button>
-                        <button type="button" class="btn next-step">Dalej</button>
+                        <button id="button-step-2" type="button" class="btn next-step">Dalej</button>
+
                     </div>
+                        <div id='empty-bags' class="empty-bags">Dodaj chociaż jeden worek.</div>
                 </div>
 
 
-                <!-- STEP 4 -->
+                <!-- STEP 3 -->
                 <div data-step="3">
                     <h3>Wybierz organizacje, której chcesz pomóc:</h3>
 
-                    <div class="form-group form-group--checkbox">
-                        <label>
-                            <input type="radio" name="organization" value="old"/>
-                            <span class="checkbox radio"></span>
-                            <span class="description">
-                  <div class="title">Fundacja “Bez domu”</div>
-                  <div class="subtitle">
-                    Cel i misja: Pomoc dla osób nie posiadających miejsca
-                    zamieszkania
-                  </div>
-                </span>
-                        </label>
-                    </div>
+                    <div class="form-group form-group--checkbox" id="institution-list" >
+                        {% for institution in institutions %}<label>
+                        <input type="radio" name="organization" value={{ institution.pk }}  id={{ institution.name }} />
+                        <span class="checkbox radio"></span>
+                        <span class="description">
+                        <div class="title">{{ institution.name }}</div>
+                        <div class="subtitle">{{ institution.description }}</div>
+                        <div class="hidden-info">{{ institution.categories.all|join:', ' }}</div>
 
-                    <div class="form-group form-group--checkbox">
-                        <label>
-                            <input type="radio" name="organization" value="old"/>
-                            <span class="checkbox radio"></span>
-                            <span class="description">
-                  <div class="title">Fundacja “Dla dzieci"</div>
-                  <div class="subtitle">
-                    Cel i misja: Pomoc osobom znajdującym się w trudnej sytuacji
-                    życiowej.
-                  </div>
-                </span>
-                        </label>
+                        </span>
+                        </label>{% endfor %}
+                    <div class="empty-list">Żadna instytucja nie obsługuje tylu wybranych kategorii. Zmień wybór w kroku 1.</div>
                     </div>
 
                     <div class="form-group form-group--buttons">
                         <button type="button" class="btn prev-step">Wstecz</button>
-                        <button type="button" class="btn next-step">Dalej</button>
+                        <button id="button-step-3" type="button" class="btn next-step">Dalej</button>
                     </div>
+                    <div id="empty-institution" class="empty-institution">Wybierz instytucję.</div>
                 </div>
 
-                <!-- STEP 5 -->
+                <!-- STEP 4 -->
                 <div data-step="4">
                     <h3>Podaj adres oraz termin odbioru rzecz przez kuriera:</h3>
 
-                    <div class="form-section form-section--columns">
+                    <div id="pick-up-details" class="form-section form-section--columns">
                         <div class="form-section--column">
                             <h4>Adres odbioru</h4>
                             <div class="form-group form-group--inline">
@@ -197,7 +182,7 @@
                             </div>
                         </div>
 
-                        <div class="form-section--column">
+                        <div id="pick-up-date" class="form-section--column">
                             <h4>Termin odbioru</h4>
                             <div class="form-group form-group--inline">
                                 <label> Data <input type="date" name="data"/> </label>
@@ -217,11 +202,15 @@
                     </div>
                     <div class="form-group form-group--buttons">
                         <button type="button" class="btn prev-step">Wstecz</button>
-                        <button type="button" class="btn next-step">Dalej</button>
+                        <button id="button-step-4" type="button" class="btn next-step">Dalej</button>
                     </div>
+                    <div id="wrong-data" class="empty-details">Błędny numer telefonu.</div>
+                    <div id="wrong-zip-code" class="empty-details">Błędny kod pocztowy.</div>
+                    <div id="empty-details" class="empty-details">Wypełnij wszystkie pola lub podane nazwy są zbyt krótkie.</div>
+                    <div id="wrong-date" class="empty-details">Możliwy najbliższy termin to jutro.</div>
                 </div>
 
-                <!-- STEP 6 -->
+                <!-- STEP 5 -->
                 <div data-step="5">
                     <h3>Podsumowanie Twojej darowizny</h3>
 
@@ -229,18 +218,11 @@
                         <div class="form-section">
                             <h4>Oddajesz:</h4>
                             <ul>
-                                <li>
+                                <li class="bags-summary">
                                     <span class="icon icon-bag"></span>
-                                    <span class="summary--text"
-                                    >4 worki ubrań w dobrym stanie dla dzieci</span
-                                    >
                                 </li>
-
-                                <li>
+                                <li class="institution-summary">
                                     <span class="icon icon-hand"></span>
-                                    <span class="summary--text"
-                                    >Dla fundacji "Mam marzenie" w Warszawie</span
-                                    >
                                 </li>
                             </ul>
                         </div>
@@ -248,20 +230,13 @@
                         <div class="form-section form-section--columns">
                             <div class="form-section--column">
                                 <h4>Adres odbioru:</h4>
-                                <ul>
-                                    <li>Prosta 51</li>
-                                    <li>Warszawa</li>
-                                    <li>99-098</li>
-                                    <li>123 456 789</li>
+                                <ul class="address-list">
                                 </ul>
                             </div>
 
                             <div class="form-section--column">
                                 <h4>Termin odbioru:</h4>
-                                <ul>
-                                    <li>13/12/2018</li>
-                                    <li>15:40</li>
-                                    <li>Brak uwag</li>
+                                <ul class="pick-up-date">
                                 </ul>
                             </div>
                         </div>
@@ -274,5 +249,6 @@
                 </div>
             </form>
         </div>
+
     </section>
 {% endblock %}

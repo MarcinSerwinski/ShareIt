@@ -12,12 +12,13 @@ def test_category_content(create_category):
     assert len(category) == 1
 
 
-def test_institution_content(create_institution):
+def test_institution_content(create_institution, create_category):
     institution = Institution.objects.all()
     assert create_institution.name == 'TestNameInstitution'
     assert create_institution.description == 'TestDescriptionInstitution'
     assert create_institution.type == 1
     assert len(institution) == 1
+
 
 
 def test_donation_content(create_donation):

@@ -6,13 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
     <title>ShareIt! {% block title %}{% endblock %}</title>
-    {% block styles %}
-        <link rel="stylesheet" href="{% static './css/style.css' %}">
-    {% endblock %}
-    {% block scripts %}
-        <script src="{% static './js/app.js' %}" async defer></script>
-    {% endblock %}
-
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 <body>
 {% block container %}
@@ -40,6 +34,6 @@
     </div>
 </footer>
 
-
+<script src="{% static 'js/app.js' %}" ></script>
 </body>
 </html>

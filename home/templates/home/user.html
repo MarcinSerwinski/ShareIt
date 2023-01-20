@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block container %}
+
+    <div class="container container--85"> Witaj {{ user.username }} !</div>
+
+    <h2>Twoje dane to:</h2>
+
+        <ul class="help--buttons">
+
+            <li>
+                <div class="col">
+                    <div class="title">Email: {{ user.email }} </div>
+                    <div class="title">Imię: {{ user.first_name }} </div>
+                    <div class="title">Nazwisko: {{ user.last_name }} </div>
+                </div>
+            </li>
+
+        </ul>
+    <a href="{% url 'home:home' %}" class="btn btn--small">Powrót do strony głównej</a>
+
+
+
+
+{% endblock %}

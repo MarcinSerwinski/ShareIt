@@ -1,6 +1,6 @@
 import random
 
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LoginView
 from django.db.models import Sum
@@ -38,29 +38,28 @@ class AddDonation(LoginRequiredMixin, View):
         return render(request, self.template_name, {'categories': categories, 'institutions': institutions})
 
     def post(self, request):
-            quantity = request.POST.get('quantity')
-            categories = request.POST.get('category.pk')
-            institution = request.POST.get('organization')
-            address = request.POST.get('address')
-            phone_number = request.POST.get('phone')
-            city = request.POST.get('city')
-            zip_code = request.POST.get('postcode')
-            pick_up_date = request.POST.get('data')
-            pick_up_time = request.POST.get('time')
-            user = request.user
+        quantity = request.POST.get('quantity')
+        categories = request.POST.get('category.pk')
+        institution = request.POST.get('organization')
+        address = request.POST.get('address')
+        phone_number = request.POST.get('phone')
+        city = request.POST.get('city')
+        zip_code = request.POST.get('postcode')
+        pick_up_date = request.POST.get('data')
+        pick_up_time = request.POST.get('time')
+        user = request.user
 
-            donation = Donation(quantity=quantity, institution_id=institution, address=address,
-                                phone_number=phone_number, city=city, zip_code=zip_code, pick_up_date=pick_up_date,
-                                pick_up_time=pick_up_time, user=user)
-            donation.save()
-            donation.categories.add(categories)
-            return redirect('home:home')
-
+        donation = Donation(quantity=quantity, institution_id=institution, address=address,
+                            phone_number=phone_number, city=city, zip_code=zip_code, pick_up_date=pick_up_date,
+                            pick_up_time=pick_up_time, user=user)
+        donation.save()
+        donation.categories.add(categories)
+        return redirect('home:home')
 
 
 class Register(View):
     template_name = 'home/register.html'
-    model = User
+    model = get_user_model()
 
     def get(self, request):
         form = forms.RegistrationForm()
@@ -103,3 +102,10 @@ def login_view(request):
 def logout_view(request):
     logout(request)
     return redirect('home:home')
+
+
+class Profile(View):
+    def get(self, request):
+        users = get_user_model()
+        user = users.objects.get(pk=request.user.pk)
+        return render(request, 'home/user.html', {'user': user})

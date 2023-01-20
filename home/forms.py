@@ -1,23 +1,22 @@
 from django import forms
+from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from django.contrib.auth.models import User
+
 from django.core.exceptions import ValidationError
 
 class RegistrationForm(forms.ModelForm):
-    first_name = forms.CharField(max_length=128, widget=forms.TextInput(attrs={'class': 'form-group',
+    first_name = forms.CharField(max_length=128, widget=forms.TextInput(attrs={
                                                                                'placeholder': 'Imię'}), label='')
-    last_name = forms.CharField(max_length=128, widget=forms.TextInput(attrs={'class': 'form-group',
+    last_name = forms.CharField(max_length=128, widget=forms.TextInput(attrs={
                                                                               'placeholder': 'Nazwisko'}), label='')
-    email = forms.EmailField(max_length=128, widget=forms.EmailInput(attrs={'class': 'form-group',
+    email = forms.EmailField(max_length=128, widget=forms.EmailInput(attrs={
                                                                             'placeholder': 'Email'}), label='')
-    password1 = forms.CharField(max_length=128, widget=forms.PasswordInput(attrs={'class': 'form-group',
-                                                                                  'placeholder': 'Hasło'}), label='')
-    password2 = forms.CharField(max_length=128, widget=forms.PasswordInput(attrs={'class': 'form-group',
-                                                                                  'placeholder': 'Powtórz hasło'}),
-                                label='')
+    password1 = forms.CharField(max_length=128, widget=forms.PasswordInput(attrs={'placeholder': 'Hasło'}), label='')
+
+    password2 = forms.CharField(max_length=128, widget=forms.PasswordInput(attrs={'placeholder': 'Powtórz hasło'}), label='')
 
     class Meta:
-        model = User
+        model = get_user_model()
         fields = ['email']
 
     def clean_password2(self):

@@ -12,8 +12,9 @@ def test_category_content(create_category):
     assert len(category) == 1
 
 
-def test_institution_content(create_institution, create_category):
+def test_institution_content(create_institution):
     institution = Institution.objects.all()
+    assert create_institution.categories.filter(name='TestNameCategory')
     assert create_institution.name == 'TestNameInstitution'
     assert create_institution.description == 'TestDescriptionInstitution'
     assert create_institution.type == 1
@@ -23,6 +24,8 @@ def test_institution_content(create_institution, create_category):
 
 def test_donation_content(create_donation):
     donation = Donation.objects.all()
+    assert create_donation.institution.name == 'TestNameInstitution'
+    assert create_donation.categories.filter(name='TestNameCategory')
     assert create_donation.quantity == 1
     assert create_donation.address == 'TestAddress'
     assert create_donation.phone_number == '1234567890'

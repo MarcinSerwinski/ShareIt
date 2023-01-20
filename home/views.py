@@ -108,4 +108,8 @@ class Profile(View):
     def get(self, request):
         users = get_user_model()
         user = users.objects.get(pk=request.user.pk)
-        return render(request, 'home/user.html', {'user': user})
+        donations = Donation.objects.filter(user=user)
+
+
+        return render(request, 'home/user.html',
+                      {'user': user, 'donations': donations})

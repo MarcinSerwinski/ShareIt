@@ -2,40 +2,40 @@
 
 {% block container %}
     <header>{% include 'partials/_menu.html' %}</header>
-    <div class="container container--85">
 
-        <h2 class="p-4">Dobrze, że z nami jesteś {{ user.username }}! <br>
-            Twoje dane to:</h2>
+    <div class="container">
+        <h3 class="p-4">Hej! Dobrze, że z nami jesteś: {{ user.username }}!</h3>
+        <div class="display-6 p-4">
+            <div class="row">
+                <div class="col-0 col-sm-2">Imię: {{ user.first_name }}</div>
+            </div>
+            <div class="row">
+                <div class="col-0 col-sm-2">Nazwisko: {{ user.last_name }}</div>
+            </div>
+            <div class="row">
+                <div class="col-0 col-sm-2">Email: {{ user.email }}</div>
 
-        <ul class="help--buttons">
-
-            <li>
-                <div class="col">
-                    <div class="title">Email: {{ user.email }} </div>
-                    <div class="title">Imię: {{ user.first_name }} </div>
-                    <div class="title">Nazwisko: {{ user.last_name }} </div>
-                </div>
-            </li>
-        <div>
-        <h3>Twoje dotacje:</h3>
-            {% for donation in donations %}
-
-            <li>
-                <div class="col">
-                    <div class="title">Worki {{ donation.quantity }} </div>
-                    <div class="title">Nazwa organizacji: {{ donation.institution }} </div>
-                    <div class="title">Adres : {{ donation.address }} Kod pocztowy: {{ donation.zip_code }}</div>
-                    <div class="title">Data : {{ donation.pick_up_date }} </div>
-                    <div class="title">Godzina : {{ donation.pick_up_time }} </div>
-                    <div class="title">Kategoria : {% for category in donation.categories.all %} {{ category.name }} {% endfor %}</div>
-
-                </div>
-            </li>
-            {% endfor %}</div>
-    </ul>
+            </div>
+        </div>
     </div>
 
 
+        <div class="container">
+        <h3>Twoje dotacje:</h3>
+    {% for donation in donations %}
+        <div class="col">
+            <div class="col-0 col-md-3">Worki {{ donation.quantity }} </div>
+            <div class="col-0 col-md-3">Nazwa organizacji: {{ donation.institution }} </div>
+            <div class="col-0 col-md-3">Adres : {{ donation.address }} Kod pocztowy: {{ donation.zip_code }}</div>
+            <div class="col-0 col-md-3">Data : {{ donation.pick_up_date }} </div>
+            <div class="col-0 col-md-3">Godzina : {{ donation.pick_up_time }} </div>
+            <div class="col-0 col-md-3">Kategoria : {% for category in donation.categories.all %}
+                {{ category.name }} {% endfor %}</div>
+        {% empty %}
+            <div class="row text-center">Jeszcze nic nie przekazano.</div>
+        </div>
 
+    {% endfor %}
 
+</div>
 {% endblock %}

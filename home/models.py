@@ -26,7 +26,7 @@ class Institution(models.Model):
 
 class Donation(models.Model):
     quantity = models.IntegerField()
-    categories = models.ManyToManyField('Category', related_name='donation')
+    categories = models.ManyToManyField('Category')
     institution = models.ForeignKey('Institution', on_delete=models.CASCADE)
     address = models.CharField(max_length=250)
     phone_number = models.CharField(max_length=30)

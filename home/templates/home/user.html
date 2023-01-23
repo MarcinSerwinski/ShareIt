@@ -19,6 +19,7 @@
         <div>
         <h3>Twoje dotacje:</h3>
             {% for donation in donations %}
+
             <li>
                 <div class="col">
                     <div class="title">Worki {{ donation.quantity }} </div>
@@ -26,7 +27,8 @@
                     <div class="title">Adres : {{ donation.address }} Kod pocztowy: {{ donation.zip_code }}</div>
                     <div class="title">Data : {{ donation.pick_up_date }} </div>
                     <div class="title">Godzina : {{ donation.pick_up_time }} </div>
-                    <div class="title">Kategoria :  </div>
+                    <div class="title">Kategoria : {% for category in donation.categories.all %} {{ category.name }} {% endfor %}</div>
+
                 </div>
             </li>
             {% endfor %}</div>

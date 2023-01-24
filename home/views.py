@@ -112,6 +112,7 @@ class Profile(View):
 
         return render(request, 'home/user.html', {'user': user, 'donations': donations})
 
+
     def post(self, request):
         users = get_user_model()
         user = users.objects.get(pk=request.user.pk)

@@ -1,13 +1,13 @@
-import random
+
 
 from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth.views import LoginView
 from django.db.models import Sum
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
 from django.views.generic import TemplateView, FormView, ListView, CreateView
 from django.contrib.auth.models import User
+from pytest_django.fixtures import django_user_model
 
 from home import forms
 from home.models import *

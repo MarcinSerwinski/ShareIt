@@ -39,7 +39,7 @@ class AddDonation(LoginRequiredMixin, View):
 
     def post(self, request):
         quantity = request.POST.get('quantity')
-        categories = request.POST.get('category.pk')
+        categories = request.POST.get('category')
         institution = request.POST.get('organization')
         address = request.POST.get('address')
         phone_number = request.POST.get('phone')
@@ -108,4 +108,6 @@ class Profile(View):
     def get(self, request):
         users = get_user_model()
         user = users.objects.get(pk=request.user.pk)
-        return render(request, 'home/user.html', {'user': user})
+        donations = Donation.objects.filter(user=user.pk)
+
+        return render(request, 'home/user.html', {'user': user, 'donations': donations})

@@ -20,22 +20,23 @@
     </div>
 
 
-        <div class="container">
+    <div class="container">
         <h3>Twoje dotacje:</h3>
-    {% for donation in donations %}
-        <div class="col">
-            <div class="col-0 col-md-3">Worki {{ donation.quantity }} </div>
-            <div class="col-0 col-md-3">Nazwa organizacji: {{ donation.institution }} </div>
-            <div class="col-0 col-md-3">Adres : {{ donation.address }} Kod pocztowy: {{ donation.zip_code }}</div>
-            <div class="col-0 col-md-3">Data : {{ donation.pick_up_date }} </div>
-            <div class="col-0 col-md-3">Godzina : {{ donation.pick_up_time }} </div>
-            <div class="col-0 col-md-3">Kategoria : {% for category in donation.categories.all %}
-                {{ category.name }} {% endfor %}</div>
-        {% empty %}
-            <div class="row text-center">Jeszcze nic nie przekazano.</div>
-        </div>
+        {% for donation in donations %}
+            <div class="col">
+                <div class="col-0 col-md-3">Worki {{ donation.quantity }} </div>
+                <div class="col-0 col-md-3">Nazwa organizacji: {{ donation.institution }} </div>
+                <div class="col-0 col-md-3">Adres : {{ donation.address }} Kod pocztowy: {{ donation.zip_code }}</div>
+                <div class="col-0 col-md-3">Data : {{ donation.pick_up_date }} </div>
+                <div class="col-0 col-md-3">Godzina : {{ donation.pick_up_time }} </div>
+                <div class="col-0 col-md-3">Kategoria : {% for category in donation.categories.all %}
+                    {{ category.name }} {% endfor %}</div>
+                <div class="col-0 col-md-3">Zebrana? {{ donation.is_taken }} </div>
+                {% empty %}
+                <div class="row text-center">Jeszcze nic nie przekazano.</div>
+            </div>
 
-    {% endfor %}
+        {% endfor %}
 
-</div>
+    </div>
 {% endblock %}

@@ -4,7 +4,7 @@ from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LoginView
 from django.db.models import Sum
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
 from django.views.generic import TemplateView, FormView, ListView, CreateView
 from django.contrib.auth.models import User
@@ -111,3 +111,22 @@ class Profile(View):
         donations = Donation.objects.filter(user=user.pk)
 
         return render(request, 'home/user.html', {'user': user, 'donations': donations})
+
+    def post(self, request):
+        users = get_user_model()
+        user = users.objects.get(pk=request.user.pk)
+        donations = Donation.objects.filter(user=user)
+        id_donation = request.POST.get('id_donation')
+        donation = donations.get(pk=id_donation)
+
+        if donation.is_taken:
+
+            donation.is_taken = False
+            donation.save()
+
+        elif not donation.is_taken:
+
+            donation.is_taken = True
+            donation.save()
+
+        return redirect('home:profile')

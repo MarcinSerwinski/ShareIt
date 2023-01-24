@@ -1,8 +1,12 @@
 {% extends 'base.html' %}
+{% load static %}
+{% block style %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}" xmlns="http://www.w3.org/1999/html">
 
+{% endblock %}
 {% block container %}
     <header>{% include 'partials/_menu.html' %}</header>
-
+<div id="profile">
     <div class="container">
         <h3 class="p-4">Hej! Dobrze, że z nami jesteś: {{ user.username }}!</h3>
         <div class="display-6 p-4">
@@ -10,7 +14,7 @@
                 <div class="col-0 col-sm-2">Imię: {{ user.first_name }}</div>
             </div>
             <div class="row">
-                <div class="col-0 col-sm-2">Nazwisko: {{ user.last_name }}</div>
+                <div class="col-0 col-sm-5">Nazwisko: {{ user.last_name }}</div>
             </div>
             <div class="row">
                 <div class="col-0 col-sm-2">Email: {{ user.email }}</div>
@@ -23,7 +27,8 @@
     <div class="container">
         <h3>Twoje dotacje:</h3>
         {% for donation in donations %}
-            <div class="col">
+            {% if not donation.is_taken %}
+                <div class="col">
                 <div class="col-0 col-md-3">Worki {{ donation.quantity }} </div>
                 <div class="col-0 col-md-3">Nazwa organizacji: {{ donation.institution }} </div>
                 <div class="col-0 col-md-3">Adres : {{ donation.address }} Kod pocztowy: {{ donation.zip_code }}</div>
@@ -31,12 +36,41 @@
                 <div class="col-0 col-md-3">Godzina : {{ donation.pick_up_time }} </div>
                 <div class="col-0 col-md-3">Kategoria : {% for category in donation.categories.all %}
                     {{ category.name }} {% endfor %}</div>
-                <div class="col-0 col-md-3">Zebrana? {{ donation.is_taken }} </div>
-                {% empty %}
-                <div class="row text-center">Jeszcze nic nie przekazano.</div>
-            </div>
+                <div>
+                    <form method="post">{% csrf_token %}
+                        <button type="submit" class="button" id='donation' name="id_donation" value="{{ donation.id }}">
+                            Tak
+                        </button>
+                    </form>
+                </div>
 
+
+            {% endif %}
         {% endfor %}
 
+
+        {% for donation in donations %}
+            {% if donation.is_taken %}
+                <div class="col">
+                    <div class="col-0 col-md-3">Worki {{ donation.quantity }} </div>
+                    <div class="col-0 col-md-3">Nazwa organizacji: {{ donation.institution }} </div>
+                    <div class="col-0 col-md-3">Adres : {{ donation.address }} Kod
+                        pocztowy: {{ donation.zip_code }}</div>
+                    <div class="col-0 col-md-3">Data : {{ donation.pick_up_date }} </div>
+                    <div class="col-0 col-md-3">Godzina : {{ donation.pick_up_time }} </div>
+                    <div class="col-0 col-md-3">Kategoria : {% for category in donation.categories.all %}
+                        {{ category.name }} {% endfor %}</div>
+                    <div>
+                        <form method="post">{% csrf_token %}
+                            <button type="submit" class="button" id='donation' name='id_donation'
+                                    value="{{ donation.id }}">Nie</button>
+                        </form>
+                    </div>
+
+                </div>
+            {% endif %}
+        {% endfor %}
+        </div>
     </div>
+</div>
 {% endblock %}

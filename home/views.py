@@ -1,6 +1,5 @@
-
-
 from django.contrib.auth import authenticate, login, logout, get_user_model
+from django.contrib.auth.hashers import check_password
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Sum
 from django.shortcuts import render, redirect, get_object_or_404
@@ -8,7 +7,7 @@ from django.views import View
 from django.views.generic import TemplateView, FormView, ListView, CreateView
 from django.contrib.auth.models import User
 from pytest_django.fixtures import django_user_model
-
+from django.contrib import messages
 from home import forms
 from home.models import *
 
@@ -104,7 +103,7 @@ def logout_view(request):
     return redirect('home:home')
 
 
-class Profile(View):
+class Profile(LoginRequiredMixin, View):
     def get(self, request):
         users = get_user_model()
         user = users.objects.get(pk=request.user.pk)
@@ -130,3 +129,24 @@ class Profile(View):
             donation.save()
 
         return redirect('home:profile')
+
+
+class AccessEditUser(LoginRequiredMixin, View):
+    template_name = 'home/edit-user-access.html'
+
+    def get(self, request):
+        form = forms.UserEditAccessForm()
+        return render(request, self.template_name, {'form': form})
+
+    def post(self, request):
+        form = forms.UserEditAccessForm(request.POST)
+        if form.is_valid():
+            password_entered = form.cleaned_data['password']
+            user_password = request.user.password
+            authenticate_user = check_password(password_entered, user_password)
+            if authenticate_user:
+                return redirect('home:home')
+
+            else:
+                messages.error(request, ("Podano nieprawidłowe hasło."))
+                return redirect('home:access-edit-user')

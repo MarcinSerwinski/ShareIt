@@ -35,3 +35,10 @@ class RegistrationForm(forms.ModelForm):
             user.save()
 
         return user
+
+class UserEditAccessForm(forms.ModelForm):
+    password = forms.CharField(max_length=128, widget=forms.PasswordInput(attrs={'placeholder': 'Hasło'}), label='')
+
+    class Meta:
+        model = get_user_model()
+        fields = ['password']

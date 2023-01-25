@@ -73,6 +73,7 @@ def test_user_donations_details_get(db, client, user, create_donation):
     assertTemplateUsed(response, 'home/user.html')
     assert "test2@admin.com" in response.content.decode('UTF-8')
     assert "TestAddress" in response.content.decode('UTF-8')
+    assert Donation.objects.get(is_taken=False)
 
 
 def test_user_donations_details_post(db, client, user, create_donation):

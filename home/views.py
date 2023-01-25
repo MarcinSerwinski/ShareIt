@@ -67,7 +67,6 @@ class Register(View):
         return render(request, self.template_name, {'form': form})
 
     def post(self, request):
-        user = get_user_model()
         form = forms.RegistrationForm(request.POST)
         if form.is_valid():
             email = form.cleaned_data['email']

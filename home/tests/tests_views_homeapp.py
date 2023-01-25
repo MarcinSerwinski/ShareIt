@@ -1,6 +1,7 @@
 from django.urls import reverse
 from pytest_django.asserts import assertTemplateUsed
 
+from home.forms import UserEditPasswordForm, UserEditForm
 from home.models import *
 
 
@@ -86,3 +87,15 @@ def test_user_donations_details_post(db, client, user, create_donation):
     assert response.status_code == 302
     assert response.url.startswith(reverse('home:profile'))
     assert Donation.objects.get(is_taken=True)
+
+def test_user_edit_get(db, client, user):
+    client.force_login(user)
+    endpoint = reverse('home:edit-user')
+    response = client.get(endpoint)
+    form_in_view = response.context['form']
+    form2_in_view = response.context['form_password']
+    assert response.status_code == 200
+    assertTemplateUsed(response, 'home/edit-user.html')
+    assert isinstance(form_in_view, UserEditForm)
+    assert isinstance(form2_in_view, UserEditPasswordForm)
+

@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block container %}
+    <header>
+        {% include 'partials/_menu.html' %}
+    </header>
+
+    <section class="login-page">
+        <h2>Edycja konta:</h2>
+        <form method="post">{% csrf_token %}
+
+            <div class="form-group">
+                {{ form }}
+                {% for message in messages %}
+                    <p>{{ message }}</p>
+                {% endfor %}
+            </div>
+
+            <div class="form-group form-group--buttons">
+                <button class="btn" type="submit">Potwierdź</button>
+            </div>
+        </form>
+        <form method="post">{% csrf_token %}
+
+            <div class="form-group">
+                {{ form_password }}
+                {% for message in messages %}
+                    <p>{{ message }}</p>
+                {% endfor %}
+            </div>
+
+            <div class="form-group form-group--buttons">
+                <button class="btn" type="submit">Zmień hasło</button>
+            </div>
+        </form>
+    </section>
+{% endblock %}

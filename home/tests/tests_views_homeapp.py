@@ -4,7 +4,7 @@ from pytest_django.asserts import assertTemplateUsed
 from home.models import *
 
 
-def test_landing_page_get(db,client):
+def test_landing_page_get(db, client):
     endpoint = reverse('home:home')
     response = client.get(endpoint)
     assert response.status_code == 200
@@ -64,6 +64,7 @@ def test_add_donation_post(db, client, user, create_institution, create_category
     assert response.url.startswith(reverse('home:home'))
     assert Donation.objects.get(address='testAddress')
 
+
 def test_user_donations_details_get(db, client, user, create_donation):
     client.force_login(user)
     endpoint = reverse('home:profile')
@@ -72,3 +73,15 @@ def test_user_donations_details_get(db, client, user, create_donation):
     assertTemplateUsed(response, 'home/user.html')
     assert "test2@admin.com" in response.content.decode('UTF-8')
     assert "TestAddress" in response.content.decode('UTF-8')
+
+
+def test_user_donations_details_post(db, client, user, create_donation):
+    client.force_login(user)
+    endpoint = reverse('home:profile')
+
+    data = {'id_donation': create_donation.pk}
+
+    response = client.post(endpoint, data)
+    assert response.status_code == 302
+    assert response.url.startswith(reverse('home:profile'))
+    assert Donation.objects.get(is_taken=True)

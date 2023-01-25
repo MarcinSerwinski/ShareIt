@@ -4,16 +4,14 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 
 from django.core.exceptions import ValidationError
 
-class RegistrationForm(forms.ModelForm):
-    first_name = forms.CharField(max_length=128, widget=forms.TextInput(attrs={
-                                                                               'placeholder': 'Imię'}), label='')
-    last_name = forms.CharField(max_length=128, widget=forms.TextInput(attrs={
-                                                                              'placeholder': 'Nazwisko'}), label='')
-    email = forms.EmailField(max_length=128, widget=forms.EmailInput(attrs={
-                                                                            'placeholder': 'Email'}), label='')
-    password1 = forms.CharField(max_length=128, widget=forms.PasswordInput(attrs={'placeholder': 'Hasło'}), label='')
 
-    password2 = forms.CharField(max_length=128, widget=forms.PasswordInput(attrs={'placeholder': 'Powtórz hasło'}), label='')
+class RegistrationForm(forms.ModelForm):
+    first_name = forms.CharField(max_length=128, widget=forms.TextInput(attrs={'placeholder': 'Imię'}), label='')
+    last_name = forms.CharField(max_length=128, widget=forms.TextInput(attrs={'placeholder': 'Nazwisko'}), label='')
+    email = forms.EmailField(max_length=128, widget=forms.EmailInput(attrs={'placeholder': 'Email'}), label='')
+    password1 = forms.CharField(max_length=128, widget=forms.PasswordInput(attrs={'placeholder': 'Hasło'}), label='')
+    password2 = forms.CharField(max_length=128, widget=forms.PasswordInput(attrs={'placeholder': 'Powtórz hasło'}),
+                                label='')
 
     class Meta:
         model = get_user_model()
@@ -30,11 +28,11 @@ class RegistrationForm(forms.ModelForm):
         user = super().save(commit=False)
         user.set_password(self.cleaned_data.get('password'))
 
-
         if commit:
             user.save()
 
         return user
+
 
 class UserEditAccessForm(forms.ModelForm):
     password = forms.CharField(max_length=128, widget=forms.PasswordInput(attrs={'placeholder': 'Hasło'}), label='')
@@ -42,3 +40,27 @@ class UserEditAccessForm(forms.ModelForm):
     class Meta:
         model = get_user_model()
         fields = ['password']
+
+
+class UserEditForm(forms.ModelForm):
+    first_name = forms.CharField(max_length=128, widget=forms.TextInput(attrs={'placeholder': 'Imię'}), label='')
+    last_name = forms.CharField(max_length=128, widget=forms.TextInput(attrs={'placeholder': 'Nazwisko'}), label='')
+    email = forms.EmailField(max_length=128, widget=forms.EmailInput(attrs={'placeholder': 'Email'}), label='')
+
+    class Meta:
+        model = get_user_model()
+        fields = ['email', 'first_name', 'last_name']
+
+
+class UserEditPasswordForm(forms.ModelForm):
+
+    old_password = forms.CharField(max_length=128, widget=forms.PasswordInput(attrs={'placeholder': 'Stare hasło'}),
+                                   label='')
+    password1 = forms.CharField(max_length=128, widget=forms.PasswordInput(attrs={'placeholder': 'Nowe hasło'}),
+                                label='')
+    password2 = forms.CharField(max_length=128, widget=forms.PasswordInput(attrs={'placeholder': 'Powtórz nowe hasło'}),
+                                label='')
+
+    class Meta:
+        model = get_user_model()
+        fields = []

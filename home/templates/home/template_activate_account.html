@@ -1,0 +1,7 @@
+{% autoescape off %}
+Cześć,
+
+Kliknij w poniższy link aby dokończyć rejestrację:
+
+http://{{ domain }}{% url 'home:activate' uidb64=uid token=token %}
+{% endautoescape %}

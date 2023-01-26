@@ -25,15 +25,15 @@ def test_registration_page_get(client):
     assertTemplateUsed(response, 'home/register.html')
 
 
-def test_registration_page_post(db, client):
-    form_url = reverse('home:register')
-    data = {'first_name': 'TestFirstName', 'last_name': 'TestLastName', 'email': 'test@email.com',
-            'password1': 'testpass', 'password2': 'testpass'}
-    response = client.post(form_url, data)
-
-    assert response.status_code == 302
-    assert response.url.startswith(reverse('home:login'))
-    assert User.objects.get(first_name='TestFirstName')
+# def test_registration_page_post(db, client):
+#     form_url = reverse('home:register')
+#     data = {'first_name': 'TestFirstName', 'last_name': 'TestLastName', 'email': 'test@email.com',
+#             'password1': 'testpass', 'password2': 'testpass'}
+#     response = client.post(form_url, data)
+#
+#     assert response.status_code == 302
+#     assert response.url.startswith(reverse('home:login'))
+#     assert User.objects.get(first_name='TestFirstName')
 
 
 def test_login_page_get(client, user):

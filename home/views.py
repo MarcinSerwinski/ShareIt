@@ -6,6 +6,7 @@ from django.core.mail import EmailMessage
 from django.db.models import Sum
 from django.shortcuts import render, redirect
 from django.template.loader import render_to_string
+from django.urls import reverse
 from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.views import View
@@ -226,3 +227,26 @@ class EditUser(LoginRequiredMixin, View):
             else:
                 messages.error(request, 'Stare hasło jest niepoprawne!')
                 return redirect('home:edit-user')
+
+
+class Contact(View):
+    def post(self, request):
+        name = request.POST.get("name")
+        surname = request.POST.get("surname")
+        message = request.POST.get("message")
+        admins = get_user_model().objects.filter(is_staff=True)
+        if name and surname and message:
+            mail_subject = 'Zapytanie od użytkownika strony'
+            message = f'Imię: {name}, Nazwisko: {surname}. Zapytanie: {message}'
+
+            admins_emails = []
+            admin_email = []
+            for admin in admins:
+                admins_emails.append(admin.email)
+                for email in admins_emails:
+                    admin_email.append(email)
+            email = EmailMessage(mail_subject, message, to=admin_email)
+            email.send()
+            return redirect('home:home')
+
+        return redirect('home:home')

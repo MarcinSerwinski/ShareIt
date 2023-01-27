@@ -23,7 +23,6 @@ class Institution(models.Model):
         return self.name
 
 
-
 class Donation(models.Model):
     quantity = models.IntegerField()
     categories = models.ManyToManyField('Category')
@@ -37,9 +36,15 @@ class Donation(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     is_taken = models.BooleanField(default=False)
 
-
-
-
     def __str__(self):
         return f"quantity: {self.quantity}, adres: {self.address}, phone: {self.phone_number}, city: {self.city},  " \
                f"zip-code: {self.zip_code}, pick_up_date: {self.pick_up_date}, pick_up_time: {self.pick_up_time}"
+
+
+class Contact(models.Model):
+    first_name = models.CharField(max_length=100)
+    last_name = models.CharField(max_length=100)
+    message = models.TextField(max_length=400)
+
+    def __str__(self):
+        return f"{self.first_name} {self.last_name}"

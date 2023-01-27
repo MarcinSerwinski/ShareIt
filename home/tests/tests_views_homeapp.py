@@ -1,5 +1,9 @@
+from django.contrib.auth import get_user_model
+from django.contrib.messages import get_messages
+from django.core import mail
 from django.urls import reverse
 from pytest_django.asserts import assertTemplateUsed
+from pytest_django.fixtures import django_user_model
 
 from home.forms import UserEditPasswordForm, UserEditForm, RegistrationForm, UserEditAccessForm
 from home.models import *
@@ -25,15 +29,15 @@ def test_registration_page_get(client):
     assertTemplateUsed(response, 'home/register.html')
 
 
-# def test_registration_page_post(db, client):
-#     form_url = reverse('home:register')
-#     data = {'first_name': 'TestFirstName', 'last_name': 'TestLastName', 'email': 'test@email.com',
-#             'password1': 'testpass', 'password2': 'testpass'}
-#     response = client.post(form_url, data)
-#
-#     assert response.status_code == 302
-#     assert response.url.startswith(reverse('home:login'))
-#     assert User.objects.get(first_name='TestFirstName')
+def test_registration_page_post(db, client, user):
+    form_url = reverse('home:register')
+    data = {'first_name': 'TestFirstName', 'last_name': 'TestLastName', 'email': 'test@email.com',
+            'password1': 'PasswordNotTooShortNotTooWeak1', 'password2': 'PasswordNotTooShortNotTooWeak1'}
+    response = client.post(form_url, data)
+
+    assert response.status_code == 302
+    assert response.url.startswith(reverse('home:login'))
+    assert User.objects.get(is_active=False)
 
 
 def test_login_page_get(client, user):
@@ -114,7 +118,7 @@ def test_user_access_to_edit_post(db, client, user):
 def test_user_no_access_to_edit_post(db, client, user):
     client.force_login(user)
     endpoint = reverse('home:access-edit-user')
-    data = {'password': 'WrongPasswordForUserFixture'}
+    data = {'password': 'ThisIsWrongPassword'}
 
     response = client.post(endpoint, data)
     assert response.status_code == 302
@@ -142,3 +146,37 @@ def test_user_edit_post(db, client, user):
     response = client.post(endpoint, data)
     assert response.status_code == 302
     assert response.url.startswith(reverse('home:edit-user'))
+
+
+def test_user_edit_password_post(db, client, user):
+    client.force_login(user)
+    endpoint = reverse('home:edit-user')
+    data = {'old_password': 'TestPass123', 'password1': 'NewTestPass123', 'password2': 'NewTestPass123'}
+    response = client.post(endpoint, data)
+    assert response.status_code == 302
+    assert response.url.startswith(reverse('home:profile'))
+    assert user.check_password(data.get('old_password'))
+
+
+def test_user_edit_passwords_are_not_the_same_post(db, client, user):
+    client.force_login(user)
+    endpoint = reverse('home:edit-user')
+    data = {'old_password': 'TestPass123', 'password1': 'NewPass123', 'password2': 'NewTestPass123'}
+    response = client.post(endpoint, data)
+    messages = list(get_messages(response.wsgi_request))
+    assert response.status_code == 302
+    assert response.url.startswith(reverse('home:edit-user'))
+    assert user.check_password(data.get('old_password'))
+    assert str(messages[0]) == "Podane hasła nie są takie same!"
+
+
+def test_user_edit_old_password_is_incorrect_post(db, client, user):
+    client.force_login(user)
+    endpoint = reverse('home:edit-user')
+    data = {'old_password': 'OldPassWrong111', 'password1': 'NewTestPass123', 'password2': 'NewTestPass123'}
+    response = client.post(endpoint, data)
+    messages = list(get_messages(response.wsgi_request))
+    assert response.status_code == 302
+    assert response.url.startswith(reverse('home:edit-user'))
+    assert not user.check_password(data.get('old_password'))
+    assert str(messages[0]) == "Stare hasło jest niepoprawne!"

@@ -110,7 +110,7 @@ def activate(request, uidb64, token):
         messages.success(request, 'Dziękujemy za potwierdzenie emaila. Możesz się teraz zalogować.')
         return redirect('home:login')
     else:
-        messages.error(request, 'Link do aktywacji nei działa!')
+        messages.error(request, 'Link do aktywacji nie działa!')
 
     return redirect('home:home')
 

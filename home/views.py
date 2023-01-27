@@ -182,7 +182,7 @@ class AccessEditUser(LoginRequiredMixin, View):
                 return redirect('home:edit-user')
 
             else:
-                messages.error(request, ("Podano nieprawidłowe hasło."))
+                messages.error(request, "Podano nieprawidłowe hasło.")
                 return redirect('home:access-edit-user')
 
 
@@ -207,7 +207,7 @@ class EditUser(LoginRequiredMixin, View):
             user.email = form.cleaned_data['email']
             user.username = form.cleaned_data['email']
             user.save()
-            messages.success(request, ("Zmieniono dane."))
+            messages.success(request, "Zmieniono dane.")
             return redirect('home:edit-user')
 
         if form_password.is_valid():

@@ -88,12 +88,19 @@ def test_user_donations_details_post(db, client, user, create_donation):
     client.force_login(user)
     endpoint = reverse('home:profile')
 
+    # Check if toggling is_taken value from False to True works:
     data = {'id_donation': create_donation.pk}
-
     response = client.post(endpoint, data)
     assert response.status_code == 302
     assert response.url.startswith(reverse('home:profile'))
     assert Donation.objects.get(is_taken=True)
+
+    # Check if toggling is_taken value from True to False works:
+    data = {'id_donation': create_donation.pk}
+    response = client.post(endpoint, data)
+    assert response.status_code == 302
+    assert response.url.startswith(reverse('home:profile'))
+    assert Donation.objects.get(is_taken=False)
 
 
 def test_user_access_to_edit_get(db, client, user):
@@ -121,8 +128,10 @@ def test_user_no_access_to_edit_post(db, client, user):
     data = {'password': 'ThisIsWrongPassword'}
 
     response = client.post(endpoint, data)
+    messages = list(get_messages(response.wsgi_request))
     assert response.status_code == 302
     assert response.url.startswith(reverse('home:access-edit-user'))
+    assert str(messages[0]) == "Podano nieprawidłowe hasło."
 
 
 def test_user_edit_get(db, client, user):

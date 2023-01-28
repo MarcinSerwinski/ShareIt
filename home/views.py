@@ -229,8 +229,9 @@ class EditUser(LoginRequiredMixin, View):
                 return redirect('home:edit-user')
 
 
-class Contact(View):
+class Contacts(View):
     def post(self, request):
+
         name = request.POST.get("name")
         surname = request.POST.get("surname")
         message = request.POST.get("message")

@@ -238,14 +238,10 @@ class Contact(View):
         if name and surname and message:
             mail_subject = 'Zapytanie od użytkownika strony'
             message = f'Imię: {name}, Nazwisko: {surname}. Zapytanie: {message}'
-
             admins_emails = []
-            admin_email = []
             for admin in admins:
                 admins_emails.append(admin.email)
-                for email in admins_emails:
-                    admin_email.append(email)
-            email = EmailMessage(mail_subject, message, to=admin_email)
+            email = EmailMessage(mail_subject, message, to=admins_emails)
             email.send()
             return redirect('home:home')
 

@@ -57,6 +57,13 @@ def test_add_donation_get(client, user):
     assert '<h3>Zaznacz co chcesz oddać:</h3>' in response.content.decode('UTF-8')
     assertTemplateUsed(response, 'home/form.html')
 
+def test_add_user_not_logged_donation_get(client, user):
+    endpoint = reverse('home:add-donation')
+    response = client.get(endpoint)
+    assert response.status_code == 302
+    assert response.url.startswith(reverse('home:login'))
+
+
 
 def test_add_donation_post(db, client, user, create_institution, create_category):
     client.force_login(user)
@@ -189,3 +196,20 @@ def test_user_edit_old_password_is_incorrect_post(db, client, user):
     assert response.url.startswith(reverse('home:edit-user'))
     assert not user.check_password(data.get('old_password'))
     assert str(messages[0]) == "Stare hasło jest niepoprawne!"
+
+
+def test_contact_email_send(db, client):
+    endpoint = reverse('home:contact')
+    data = {'name': 'ContactName', 'surname': 'ContactSurname', 'message': 'ContactMessage'}
+    response = client.post(endpoint, data)
+    # Create email test case:
+    mail_subject = 'Zapytanie od użytkownika strony'
+    message = f"Imię: {data['name']}, Nazwisko: {data['surname']}. Zapytanie: {data['message']}"
+    mail.send_mail(mail_subject, message, 'from@djangoapp.com', ['to@someone.com'], fail_silently=False)
+
+    assert response.status_code == 302
+    assert response.url.startswith(reverse('home:home'))
+    # Testing email:
+    assert len(mail.outbox) == 1
+    assert mail.outbox[0].body == "Imię: ContactName, Nazwisko: ContactSurname. Zapytanie: ContactMessage"
+    assert mail.outbox[0].subject == 'Zapytanie od użytkownika strony'

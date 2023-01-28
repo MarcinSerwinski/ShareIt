@@ -1,6 +1,8 @@
 from django.contrib.auth import authenticate, login, logout, get_user_model, update_session_auth_hash
+from django.contrib.auth.forms import PasswordResetForm
 from django.contrib.auth.hashers import check_password
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.views import PasswordContextMixin
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import EmailMessage
 from django.db.models import Sum
@@ -11,10 +13,12 @@ from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.views import View
 from django.contrib import messages
+from django.views.generic import TemplateView
+
 from home import forms
 from home.models import *
 from .tokens import account_activation_token
-
+from django.db.models.query_utils import Q
 
 class LandingPage(View):
 
@@ -83,7 +87,6 @@ class Register(View):
 def activate_email(request, user, to_email):
     mail_subject = 'Activate your user account.'
     message = render_to_string('home/template_activate_account.html', {
-        'user': user,
         'domain': get_current_site(request).domain,
         'uid': urlsafe_base64_encode(force_bytes(user.pk)),
         'token': account_activation_token.make_token(user),
@@ -231,7 +234,6 @@ class EditUser(LoginRequiredMixin, View):
 
 class Contacts(View):
     def post(self, request):
-
         name = request.POST.get("name")
         surname = request.POST.get("surname")
         message = request.POST.get("message")
@@ -247,3 +249,62 @@ class Contacts(View):
             return redirect('home:home')
 
         return redirect('home:home')
+
+
+class PasswordResetView(View):
+    template_name = 'home/password_reset_form.html'
+
+    def get(self, request):
+        form = PasswordResetForm()
+        return render(request, self.template_name, {'form': form})
+
+    def post(self, request):
+        form = PasswordResetForm(request.POST)
+        User = get_user_model()
+        if form.is_valid():
+            email = form.cleaned_data['email']
+            user_email = User.objects.filter(Q(email=email)).first()
+            if user_email:
+                mail_subject = "Przypomnienie hasła"
+                message = render_to_string("home/template_reset_password.html", {
+                    'domain': get_current_site(request).domain,
+                    'uid': urlsafe_base64_encode(force_bytes(user_email.pk)),
+                    'token': account_activation_token.make_token(user_email),
+                    "protocol": 'https' if request.is_secure() else 'http',
+                })
+                to_email = email
+                reset_email = EmailMessage(mail_subject, message, to=[to_email])
+                reset_email.send()
+                return redirect('home:password_reset_done')
+
+        messages.error(request, 'Użytkownik o podanym emailu nie istnieje!')
+        return redirect('home:password_reset')
+
+class PasswordResetDoneView(TemplateView):
+    template_name = "home/password_reset_done.html"
+
+def activate_new_password(request, uidb64, token):
+    User = get_user_model()
+    try:
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        user = User.objects.get(pk=uid)
+    except:
+        user = None
+
+    if user is not None and account_activation_token.check_token(user, token):
+        if request.method == 'POST':
+            form = forms.NewPasswordForm(user, request.POST)
+            if form.is_valid():
+                form.save()
+                return redirect('home:home')
+            else:
+                for error in list(form.errors.values()):
+                    messages.error(request, error)
+
+        form = forms.NewPasswordForm(user)
+        return render(request, 'home/password_reset_confirm.html', {'form': form})
+    else:
+        messages.error(request, "Link nie działa - wygeneruj zapytanie jeszcze raz.")
+
+    messages.error(request, 'Coś poszło nie tak!')
+    return redirect("home:home")

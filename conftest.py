@@ -8,7 +8,7 @@ from home.models import *
 def user(db, django_user_model):
     """Create django user"""
     return django_user_model.objects.create_user(username='test2@admin.com', email='test2@admin.com',
-                                                 password='TestPass123')
+                                                 password='TestPass123!')
 
 
 @pytest.fixture()

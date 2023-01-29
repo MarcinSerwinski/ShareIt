@@ -1,4 +1,5 @@
-from django.contrib.auth import get_user_model
+from django.contrib import auth
+from django.contrib.auth import get_user_model, get_user
 from django.contrib.auth.forms import PasswordResetForm
 from django.contrib.messages import get_messages
 from django.core import mail
@@ -6,7 +7,8 @@ from django.urls import reverse
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 from pytest_django.asserts import assertTemplateUsed
-from home.forms import UserEditPasswordForm, UserEditForm, RegistrationForm, UserEditAccessForm, NewPasswordForm
+from home.forms import UserEditPasswordForm, UserEditForm, RegistrationForm, UserEditAccessForm, NewPasswordForm, \
+    UserLoginForm
 from home.models import *
 from home.tokens import account_activation_token
 
@@ -43,12 +45,22 @@ def test_registration_page_post(db, client, user):
 
 
 def test_login_page_get(client, user):
-    client.force_login(user)
     endpoint = reverse('home:login')
     response = client.get(endpoint)
+    form_in_view = response.context['form']
     assert response.status_code == 200
-    assert '>Ustawienia</a></li>' in str(response.content)
+    assert isinstance(form_in_view, UserLoginForm)
     assertTemplateUsed(response, 'home/login.html')
+
+
+def test_login_page_post(client, user):
+    form_url = reverse('home:login')
+    data = {'username': 'test2@admin.com', 'password': 'TestPass123!'}
+    response = client.post(form_url, data)
+
+    assert response.status_code == 302
+    assert response.url.startswith(reverse('home:home'))
+    assert auth.get_user(client).is_authenticated
 
 
 def test_add_donation_get(client, user):
@@ -124,7 +136,7 @@ def test_user_access_to_edit_get(db, client, user):
 def test_user_access_to_edit_post(db, client, user):
     client.force_login(user)
     endpoint = reverse('home:access-edit-user')
-    data = {'password': 'TestPass123'}
+    data = {'password': 'TestPass123!'}
 
     response = client.post(endpoint, data)
     assert response.status_code == 302
@@ -169,7 +181,7 @@ def test_user_edit_post(db, client, user):
 def test_user_edit_password_post(db, client, user):
     client.force_login(user)
     endpoint = reverse('home:edit-user')
-    data = {'old_password': 'TestPass123', 'password1': 'NewTestPass123', 'password2': 'NewTestPass123'}
+    data = {'old_password': 'TestPass123!', 'password1': 'NewTestPass123', 'password2': 'NewTestPass123'}
     response = client.post(endpoint, data)
     assert response.status_code == 302
     assert response.url.startswith(reverse('home:profile'))
@@ -179,7 +191,7 @@ def test_user_edit_password_post(db, client, user):
 def test_user_edit_passwords_are_not_the_same_post(db, client, user):
     client.force_login(user)
     endpoint = reverse('home:edit-user')
-    data = {'old_password': 'TestPass123', 'password1': 'NewPass123', 'password2': 'NewTestPass123'}
+    data = {'old_password': 'TestPass123!', 'password1': 'NewPass123', 'password2': 'NewTestPass123'}
     response = client.post(endpoint, data)
     messages = list(get_messages(response.wsgi_request))
     assert response.status_code == 302
@@ -266,6 +278,7 @@ def test_activate_new_password_correct_token_uidb64_get(client, user):
     assert response.status_code == 200
     assert isinstance(form_in_view, NewPasswordForm)
 
+
 def test_activate_new_password_wrong_token_uidb64_get(client, user):
     uid = 'wrong'
     token = 'wrong'
@@ -275,6 +288,7 @@ def test_activate_new_password_wrong_token_uidb64_get(client, user):
     assert response.status_code == 302
     assert response.url.startswith(reverse('home:home'))
     assert str(messages[0]) == "Link nie działa - wygeneruj zapytanie jeszcze raz."
+
 
 def test_activate_new_password_post(client, user):
     uid = urlsafe_base64_encode(force_bytes(user.pk))
@@ -288,6 +302,7 @@ def test_activate_new_password_post(client, user):
     # Check if password has been changed:
     assert user_with_updated_password.check_password(data.get('new_password1'))
 
+
 def test_activate_new_account_get(client, user):
     uid = urlsafe_base64_encode(force_bytes(user.pk))
     token = account_activation_token.make_token(user)
@@ -297,6 +312,7 @@ def test_activate_new_account_get(client, user):
     assert response.status_code == 302
     assert response.url.startswith(reverse('home:login'))
     assert str(messages[0]) == 'Dziękujemy za potwierdzenie emaila. Możesz się teraz zalogować.'
+
 
 def test_activate_new_account_wrong_token_uidb64_gt(client, user):
     uid = 'wrong'

@@ -1,12 +1,13 @@
 import pytest
 
+
 from home.models import *
 
 
 @pytest.fixture()
 def user(db, django_user_model):
     """Create django user"""
-    return django_user_model.objects.create_user(username='Test UserName', email='test2@admin.com',
+    return django_user_model.objects.create_user(username='test2@admin.com', email='test2@admin.com',
                                                  password='TestPass123')
 
 
@@ -45,3 +46,5 @@ def create_donation(db, create_category, create_institution, user):
                                        is_taken=False)
     donation.categories.set([create_category])
     return donation
+
+

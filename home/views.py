@@ -2,7 +2,6 @@ from django.contrib.auth import authenticate, login, logout, get_user_model, upd
 from django.contrib.auth.forms import PasswordResetForm
 from django.contrib.auth.hashers import check_password
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth.views import PasswordContextMixin
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import EmailMessage
 from django.db.models import Sum
@@ -17,8 +16,10 @@ from django.views.generic import TemplateView
 
 from home import forms
 from home.models import *
+from .forms import UserLoginForm
 from .tokens import account_activation_token
 from django.db.models.query_utils import Q
+
 
 class LandingPage(View):
 
@@ -120,18 +121,27 @@ def activate(request, uidb64, token):
 
 
 def login_view(request):
-    if request.method == 'POST':
-        username = request.POST['email']
-        password = request.POST['password']
-        user = authenticate(request, username=username, password=password)
-        if user is not None:
-            login(request, user)
-            return redirect('home:home')
+    if request.method == "POST":
+        form = UserLoginForm(request=request, data=request.POST)
+        if form.is_valid():
+            user = authenticate(
+                username=form.cleaned_data["username"],
+                password=form.cleaned_data["password"], )
+
+            if user is not None:
+                login(request, user)
+                return redirect("home:home")
 
         else:
             return redirect('home:register')
-    else:
-        return render(request, 'home/login.html', {})
+
+    form = UserLoginForm()
+
+    return render(
+        request=request,
+        template_name="home/login.html",
+        context={"form": form}
+    )
 
 
 def logout_view(request):
@@ -280,8 +290,10 @@ class PasswordResetView(View):
         messages.error(request, 'Użytkownik o podanym emailu nie istnieje!')
         return redirect('home:password_reset')
 
+
 class PasswordResetDoneView(TemplateView):
     template_name = "home/password_reset_done.html"
+
 
 def activate_new_password(request, uidb64, token):
     User = get_user_model()
@@ -305,6 +317,4 @@ def activate_new_password(request, uidb64, token):
         return render(request, 'home/password_reset_confirm.html', {'form': form})
     else:
         messages.error(request, "Link nie działa - wygeneruj zapytanie jeszcze raz.")
-
-    messages.error(request, 'Coś poszło nie tak!')
     return redirect("home:home")

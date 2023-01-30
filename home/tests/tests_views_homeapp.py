@@ -1,5 +1,4 @@
 from django.contrib import auth
-from django.contrib.auth import get_user_model, get_user
 from django.contrib.auth.forms import PasswordResetForm
 from django.contrib.messages import get_messages
 from django.core import mail

@@ -42,6 +42,6 @@ def create_donation(db, create_category, create_institution, user):
                                        pick_up_date='2023-01-23',
                                        pick_up_time='12:30',
                                        user_id=user.id,
-                                       )
+                                       is_taken=False)
     donation.categories.set([create_category])
     return donation

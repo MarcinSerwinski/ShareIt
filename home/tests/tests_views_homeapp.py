@@ -4,7 +4,7 @@ from pytest_django.asserts import assertTemplateUsed
 from home.models import *
 
 
-def test_landing_page_get(db, client):
+def test_landing_page_get(db,client):
     endpoint = reverse('home:home')
     response = client.get(endpoint)
     assert response.status_code == 200
@@ -15,7 +15,7 @@ def test_landing_page_get(db, client):
     assertTemplateUsed(response, 'partials/_menu.html')
 
 
-def test_registration_page_get(db, client):
+def test_registration_page_get(client):
     endpoint = reverse('home:register')
     response = client.get(endpoint)
     assert response.status_code == 200
@@ -32,7 +32,7 @@ def test_registration_page_post(db, client):
     assert User.objects.get(first_name='TestFirstName')
 
 
-def test_login_page_get(db, client, user):
+def test_login_page_get(client, user):
     client.force_login(user)
     endpoint = reverse('home:login')
     response = client.get(endpoint)
@@ -41,7 +41,7 @@ def test_login_page_get(db, client, user):
     assertTemplateUsed(response, 'home/login.html')
 
 
-def test_add_donation_get(db, client, user):
+def test_add_donation_get(client, user):
     client.force_login(user)
     endpoint = reverse('home:add-donation')
     response = client.get(endpoint)
@@ -50,7 +50,7 @@ def test_add_donation_get(db, client, user):
     assertTemplateUsed(response, 'home/form.html')
 
 
-def test_add_donation_post(db, client, user, create_institution, create_category, create_donation):
+def test_add_donation_post(db, client, user, create_institution, create_category):
     client.force_login(user)
     form_url = reverse('home:add-donation')
 
@@ -63,3 +63,12 @@ def test_add_donation_post(db, client, user, create_institution, create_category
     assert response.status_code == 302
     assert response.url.startswith(reverse('home:home'))
     assert Donation.objects.get(address='testAddress')
+
+def test_user_donations_details_get(db, client, user, create_donation):
+    client.force_login(user)
+    endpoint = reverse('home:profile')
+    response = client.get(endpoint)
+    assert response.status_code == 200
+    assertTemplateUsed(response, 'home/user.html')
+    assert "test2@admin.com" in response.content.decode('UTF-8')
+    assert "TestAddress" in response.content.decode('UTF-8')

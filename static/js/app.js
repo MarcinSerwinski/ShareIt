@@ -109,7 +109,7 @@ document.addEventListener("DOMContentLoaded", function () {
             const dateInput = [...dateDetails.querySelectorAll('input')]
 
             let userDates = []
-            console.log(userDates)
+
             dateInput.forEach(date => {
                 userDates.push(date.value)
             })
@@ -207,6 +207,18 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
     }
+    // /user's profile page:
+
+    // Color change for taken away donations:
+    const userProfile = document.querySelector('#profile-details')
+    console.log(userProfile)
+    if (userProfile) {
+        const takenDonations = userProfile.querySelector('#donations')
+        console.log(takenDonations)
+        takenDonations.style.color = 'red'
+
+    }
+
 
     /**
      * HomePage - Help section

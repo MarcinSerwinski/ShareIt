@@ -5,7 +5,7 @@ from home.forms import UserEditPasswordForm, UserEditForm, RegistrationForm, Use
 from home.models import *
 
 
-def test_landing_page_get(db, client):
+def test_landing_page_get(db,client):
     endpoint = reverse('home:home')
     response = client.get(endpoint)
     assert response.status_code == 200
@@ -142,3 +142,4 @@ def test_user_edit_post(db, client, user):
     response = client.post(endpoint, data)
     assert response.status_code == 302
     assert response.url.startswith(reverse('home:edit-user'))
+    assert "TestAddress" in response.content.decode('UTF-8')

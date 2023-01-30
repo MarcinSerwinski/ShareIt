@@ -9,7 +9,7 @@ from home.forms import UserEditPasswordForm, UserEditForm, RegistrationForm, Use
 from home.models import *
 
 
-def test_landing_page_get(db, client):
+def test_landing_page_get(db,client):
     endpoint = reverse('home:home')
     response = client.get(endpoint)
     assert response.status_code == 200
@@ -63,8 +63,6 @@ def test_add_user_not_logged_donation_get(client, user):
     assert response.status_code == 302
     assert response.url.startswith(reverse('home:login'))
 
-
-
 def test_add_donation_post(db, client, user, create_institution, create_category):
     client.force_login(user)
     form_url = reverse('home:add-donation')
@@ -109,7 +107,6 @@ def test_user_donations_details_post(db, client, user, create_donation):
     assert response.url.startswith(reverse('home:profile'))
     assert Donation.objects.get(is_taken=False)
 
-
 def test_user_access_to_edit_get(db, client, user):
     client.force_login(user)
     endpoint = reverse('home:access-edit-user')
@@ -140,7 +137,6 @@ def test_user_no_access_to_edit_post(db, client, user):
     assert response.url.startswith(reverse('home:access-edit-user'))
     assert str(messages[0]) == "Podano nieprawidłowe hasło."
 
-
 def test_user_edit_get(db, client, user):
     client.force_login(user)
     endpoint = reverse('home:edit-user')
@@ -162,7 +158,6 @@ def test_user_edit_post(db, client, user):
     response = client.post(endpoint, data)
     assert response.status_code == 302
     assert response.url.startswith(reverse('home:edit-user'))
-
 
 def test_user_edit_password_post(db, client, user):
     client.force_login(user)

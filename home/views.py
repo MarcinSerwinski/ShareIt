@@ -1,3 +1,4 @@
+
 from django.contrib.auth import authenticate, login, logout, get_user_model, update_session_auth_hash
 from django.contrib.auth.hashers import check_password
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -11,6 +12,23 @@ from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.views import View
 from django.contrib import messages
+from django.contrib.auth import authenticate, login, logout, get_user_model, update_session_auth_hash
+from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib.auth.hashers import check_password
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.exceptions import ValidationError
+from django.contrib.auth import authenticate, login, logout, get_user_model
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db.models import Sum
+from django.shortcuts import render, redirect, get_object_or_404
+from django.views import View
+from django.views.generic import TemplateView, FormView, ListView, CreateView
+from django.contrib.auth.models import User
+from pytest_django.fixtures import django_user_model
+
+from django.contrib import messages
+
+
 from home import forms
 from home.models import *
 from .tokens import account_activation_token
@@ -183,7 +201,7 @@ class AccessEditUser(LoginRequiredMixin, View):
                 return redirect('home:edit-user')
 
             else:
-                messages.error(request, "Podano nieprawidłowe hasło.")
+                messages.error(request, ("Podano nieprawidłowe hasło."))
                 return redirect('home:access-edit-user')
 
 
@@ -228,10 +246,12 @@ class EditUser(LoginRequiredMixin, View):
                 messages.error(request, 'Stare hasło jest niepoprawne!')
                 return redirect('home:edit-user')
 
+        donations = Donation.objects.filter(user=user.pk)
+
+        return render(request, 'home/user.html', {'user': user, 'donations': donations})
 
 class Contacts(View):
     def post(self, request):
-
         name = request.POST.get("name")
         surname = request.POST.get("surname")
         message = request.POST.get("message")

@@ -1,7 +1,6 @@
 from django import forms
 from django.contrib.auth import get_user_model
-from django.contrib.auth.forms import UserCreationForm
-
+from django.contrib.auth.forms import UserCreationForm, SetPasswordForm, AuthenticationForm
 
 
 class RegistrationForm(UserCreationForm):
@@ -20,11 +19,19 @@ class RegistrationForm(UserCreationForm):
         user = super(RegistrationForm, self).save(commit=False)
         user.username = self.cleaned_data['email']
 
-
         if commit:
             user.save()
 
         return user
+
+
+class UserLoginForm(AuthenticationForm):
+    def __init__(self, *args, **kwargs):
+        super(UserLoginForm, self).__init__(*args, **kwargs)
+
+    username = forms.EmailField(max_length=128, widget=forms.EmailInput(attrs={'placeholder': 'Email'}), label='')
+
+    password = forms.CharField(max_length=128, widget=forms.PasswordInput(attrs={'placeholder': 'Hasło'}), label='')
 
 
 class UserEditAccessForm(forms.ModelForm):
@@ -57,3 +64,8 @@ class UserEditPasswordForm(forms.ModelForm):
         model = get_user_model()
         fields = []
 
+
+class NewPasswordForm(SetPasswordForm):
+    class Meta:
+        model = get_user_model()
+        fields = ['new_password1', 'new_password2']

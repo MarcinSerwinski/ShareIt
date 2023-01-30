@@ -1,5 +1,5 @@
-
 from django.contrib.auth import authenticate, login, logout, get_user_model, update_session_auth_hash
+from django.contrib.auth.forms import PasswordResetForm
 from django.contrib.auth.hashers import check_password
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.sites.shortcuts import get_current_site
@@ -7,34 +7,18 @@ from django.core.mail import EmailMessage
 from django.db.models import Sum
 from django.shortcuts import render, redirect
 from django.template.loader import render_to_string
-
 from django.urls import reverse
-
 from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.views import View
 from django.contrib import messages
-
-from django.contrib.auth import authenticate, login, logout, get_user_model, update_session_auth_hash
-from django.contrib.auth.forms import PasswordChangeForm
-from django.contrib.auth.hashers import check_password
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.core.exceptions import ValidationError
-from django.contrib.auth import authenticate, login, logout, get_user_model
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db.models import Sum
-from django.shortcuts import render, redirect, get_object_or_404
-from django.views import View
-from django.views.generic import TemplateView, FormView, ListView, CreateView
-from django.contrib.auth.models import User
-from pytest_django.fixtures import django_user_model
-
-from django.contrib import messages
-
+from django.views.generic import TemplateView
 
 from home import forms
 from home.models import *
+from .forms import UserLoginForm
 from .tokens import account_activation_token
+from django.db.models.query_utils import Q
 
 
 class LandingPage(View):
@@ -104,7 +88,6 @@ class Register(View):
 def activate_email(request, user, to_email):
     mail_subject = 'Activate your user account.'
     message = render_to_string('home/template_activate_account.html', {
-        'user': user,
         'domain': get_current_site(request).domain,
         'uid': urlsafe_base64_encode(force_bytes(user.pk)),
         'token': account_activation_token.make_token(user),
@@ -138,18 +121,27 @@ def activate(request, uidb64, token):
 
 
 def login_view(request):
-    if request.method == 'POST':
-        username = request.POST['email']
-        password = request.POST['password']
-        user = authenticate(request, username=username, password=password)
-        if user is not None:
-            login(request, user)
-            return redirect('home:home')
+    if request.method == "POST":
+        form = UserLoginForm(request=request, data=request.POST)
+        if form.is_valid():
+            user = authenticate(
+                username=form.cleaned_data["username"],
+                password=form.cleaned_data["password"], )
+
+            if user is not None:
+                login(request, user)
+                return redirect("home:home")
 
         else:
             return redirect('home:register')
-    else:
-        return render(request, 'home/login.html', {})
+
+    form = UserLoginForm()
+
+    return render(
+        request=request,
+        template_name="home/login.html",
+        context={"form": form}
+    )
 
 
 def logout_view(request):
@@ -250,36 +242,6 @@ class EditUser(LoginRequiredMixin, View):
                 return redirect('home:edit-user')
 
 
-class Profile(LoginRequiredMixin, View):
-    template_name = 'home/user.html'
-
-
-    def get(self, request):
-        users = get_user_model()
-        user = users.objects.get(pk=request.user.pk)
-        donations = Donation.objects.filter(user=user.pk)
-
-        return render(request, self.template_name, {'user': user, 'donations': donations})
-
-    def post(self, request):
-        users = get_user_model()
-        user = users.objects.get(pk=request.user.pk)
-        donations = Donation.objects.filter(user=user).order_by('pick_up_date')
-        id_donation = request.POST.get('id_donation')
-        donation = donations.get(pk=id_donation)
-
-        if donation.is_taken:
-
-            donation.is_taken = False
-            donation.save()
-
-        elif not donation.is_taken:
-
-            donation.is_taken = True
-            donation.save()
-
-        return redirect('home:profile')
-
 class Contacts(View):
     def post(self, request):
         name = request.POST.get("name")
@@ -298,3 +260,61 @@ class Contacts(View):
 
         return redirect('home:home')
 
+
+class PasswordResetView(View):
+    template_name = 'home/password_reset_form.html'
+
+    def get(self, request):
+        form = PasswordResetForm()
+        return render(request, self.template_name, {'form': form})
+
+    def post(self, request):
+        form = PasswordResetForm(request.POST)
+        User = get_user_model()
+        if form.is_valid():
+            email = form.cleaned_data['email']
+            user_email = User.objects.filter(Q(email=email)).first()
+            if user_email:
+                mail_subject = "Przypomnienie hasła"
+                message = render_to_string("home/template_reset_password.html", {
+                    'domain': get_current_site(request).domain,
+                    'uid': urlsafe_base64_encode(force_bytes(user_email.pk)),
+                    'token': account_activation_token.make_token(user_email),
+                    "protocol": 'https' if request.is_secure() else 'http',
+                })
+                to_email = email
+                reset_email = EmailMessage(mail_subject, message, to=[to_email])
+                reset_email.send()
+                return redirect('home:password_reset_done')
+
+        messages.error(request, 'Użytkownik o podanym emailu nie istnieje!')
+        return redirect('home:password_reset')
+
+
+class PasswordResetDoneView(TemplateView):
+    template_name = "home/password_reset_done.html"
+
+
+def activate_new_password(request, uidb64, token):
+    User = get_user_model()
+    try:
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        user = User.objects.get(pk=uid)
+    except:
+        user = None
+
+    if user is not None and account_activation_token.check_token(user, token):
+        if request.method == 'POST':
+            form = forms.NewPasswordForm(user, request.POST)
+            if form.is_valid():
+                form.save()
+                return redirect('home:home')
+            else:
+                for error in list(form.errors.values()):
+                    messages.error(request, error)
+
+        form = forms.NewPasswordForm(user)
+        return render(request, 'home/password_reset_confirm.html', {'form': form})
+    else:
+        messages.error(request, "Link nie działa - wygeneruj zapytanie jeszcze raz.")
+    return redirect("home:home")

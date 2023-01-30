@@ -1,15 +1,18 @@
-from django.contrib.auth import get_user_model
+from django.contrib import auth
+from django.contrib.auth.forms import PasswordResetForm
 from django.contrib.messages import get_messages
 from django.core import mail
 from django.urls import reverse
+from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_encode
 from pytest_django.asserts import assertTemplateUsed
-from pytest_django.fixtures import django_user_model
-
-from home.forms import UserEditPasswordForm, UserEditForm, RegistrationForm, UserEditAccessForm
+from home.forms import UserEditPasswordForm, UserEditForm, RegistrationForm, UserEditAccessForm, NewPasswordForm, \
+    UserLoginForm
 from home.models import *
+from home.tokens import account_activation_token
 
 
-def test_landing_page_get(db,client):
+def test_landing_page_get(db, client):
     endpoint = reverse('home:home')
     response = client.get(endpoint)
     assert response.status_code == 200
@@ -32,7 +35,7 @@ def test_registration_page_get(client):
 def test_registration_page_post(db, client, user):
     form_url = reverse('home:register')
     data = {'first_name': 'TestFirstName', 'last_name': 'TestLastName', 'email': 'test@email.com',
-            'password1': 'PasswordNotTooShortNotTooWeak1', 'password2': 'PasswordNotTooShortNotTooWeak1'}
+            'password1': 'PasswordNotTooShortNotTooWeak1!', 'password2': 'PasswordNotTooShortNotTooWeak1!'}
     response = client.post(form_url, data)
 
     assert response.status_code == 302
@@ -41,12 +44,22 @@ def test_registration_page_post(db, client, user):
 
 
 def test_login_page_get(client, user):
-    client.force_login(user)
     endpoint = reverse('home:login')
     response = client.get(endpoint)
+    form_in_view = response.context['form']
     assert response.status_code == 200
-    assert '>Ustawienia</a></li>' in str(response.content)
+    assert isinstance(form_in_view, UserLoginForm)
     assertTemplateUsed(response, 'home/login.html')
+
+
+def test_login_page_post(client, user):
+    form_url = reverse('home:login')
+    data = {'username': 'test2@admin.com', 'password': 'TestPass123!'}
+    response = client.post(form_url, data)
+
+    assert response.status_code == 302
+    assert response.url.startswith(reverse('home:home'))
+    assert auth.get_user(client).is_authenticated
 
 
 def test_add_donation_get(client, user):
@@ -57,11 +70,13 @@ def test_add_donation_get(client, user):
     assert '<h3>Zaznacz co chcesz oddać:</h3>' in response.content.decode('UTF-8')
     assertTemplateUsed(response, 'home/form.html')
 
+
 def test_add_user_not_logged_donation_get(client, user):
     endpoint = reverse('home:add-donation')
     response = client.get(endpoint)
     assert response.status_code == 302
     assert response.url.startswith(reverse('home:login'))
+
 
 def test_add_donation_post(db, client, user, create_institution, create_category):
     client.force_login(user)
@@ -107,6 +122,7 @@ def test_user_donations_details_post(db, client, user, create_donation):
     assert response.url.startswith(reverse('home:profile'))
     assert Donation.objects.get(is_taken=False)
 
+
 def test_user_access_to_edit_get(db, client, user):
     client.force_login(user)
     endpoint = reverse('home:access-edit-user')
@@ -119,7 +135,7 @@ def test_user_access_to_edit_get(db, client, user):
 def test_user_access_to_edit_post(db, client, user):
     client.force_login(user)
     endpoint = reverse('home:access-edit-user')
-    data = {'password': 'TestPass123'}
+    data = {'password': 'TestPass123!'}
 
     response = client.post(endpoint, data)
     assert response.status_code == 302
@@ -136,6 +152,7 @@ def test_user_no_access_to_edit_post(db, client, user):
     assert response.status_code == 302
     assert response.url.startswith(reverse('home:access-edit-user'))
     assert str(messages[0]) == "Podano nieprawidłowe hasło."
+
 
 def test_user_edit_get(db, client, user):
     client.force_login(user)
@@ -159,10 +176,11 @@ def test_user_edit_post(db, client, user):
     assert response.status_code == 302
     assert response.url.startswith(reverse('home:edit-user'))
 
+
 def test_user_edit_password_post(db, client, user):
     client.force_login(user)
     endpoint = reverse('home:edit-user')
-    data = {'old_password': 'TestPass123', 'password1': 'NewTestPass123', 'password2': 'NewTestPass123'}
+    data = {'old_password': 'TestPass123!', 'password1': 'NewTestPass123', 'password2': 'NewTestPass123'}
     response = client.post(endpoint, data)
     assert response.status_code == 302
     assert response.url.startswith(reverse('home:profile'))
@@ -172,7 +190,7 @@ def test_user_edit_password_post(db, client, user):
 def test_user_edit_passwords_are_not_the_same_post(db, client, user):
     client.force_login(user)
     endpoint = reverse('home:edit-user')
-    data = {'old_password': 'TestPass123', 'password1': 'NewPass123', 'password2': 'NewTestPass123'}
+    data = {'old_password': 'TestPass123!', 'password1': 'NewPass123', 'password2': 'NewTestPass123'}
     response = client.post(endpoint, data)
     messages = list(get_messages(response.wsgi_request))
     assert response.status_code == 302
@@ -201,9 +219,106 @@ def test_contact_email_send(db, client):
     mail_subject = 'Zapytanie od użytkownika strony'
     message = f"Imię: {data['name']}, Nazwisko: {data['surname']}. Zapytanie: {data['message']}"
     mail.send_mail(mail_subject, message, 'from@djangoapp.com', ['to@someone.com'], fail_silently=False)
+
     assert response.status_code == 302
     assert response.url.startswith(reverse('home:home'))
     # Testing email:
     assert len(mail.outbox) == 1
     assert mail.outbox[0].body == "Imię: ContactName, Nazwisko: ContactSurname. Zapytanie: ContactMessage"
     assert mail.outbox[0].subject == 'Zapytanie od użytkownika strony'
+
+
+def test_password_reset_view_get(client):
+    endpoint = reverse('home:password_reset')
+    response = client.get(endpoint)
+    form_in_view = response.context['form']
+    assert response.status_code == 200
+    assert isinstance(form_in_view, PasswordResetForm)
+    assertTemplateUsed(response, 'home/password_reset_form.html')
+
+
+def test_password_reset_view_post(db, client, user):
+    endpoint = reverse('home:password_reset')
+    data = {'email': 'test2@admin.com'}
+    response = client.post(endpoint, data)
+
+    assert response.status_code == 302
+    assert response.url.startswith(reverse('home:password_reset_done'))
+    # Testing reset password email:
+    domain = response.context['domain']
+    protocol = response.context['protocol']
+    token = response.context['token']
+    uid = response.context['uid']
+    assert len(mail.outbox) == 1
+    assert mail.outbox[0].subject == "Przypomnienie hasła"
+    assert mail.outbox[
+               0].body == f'\nCześć,\n\nKliknij w poniższy link aby resetować hasło:\n\n\n{protocol}://{domain}/reset' \
+                          f'-password/confirm/{uid}/{token}/\n\n'
+
+
+def test_password_reset_view_wrong_email_post(db, client):
+    endpoint = reverse('home:password_reset')
+    data = {'email': 'user_does_not_exist@email.com'}
+    response = client.post(endpoint, data)
+    messages = list(get_messages(response.wsgi_request))
+    assert response.status_code == 302
+    assert response.url.startswith(reverse('home:password_reset'))
+    assert str(messages[0]) == 'Użytkownik o podanym emailu nie istnieje!'
+    # Testing if no email has been sent:
+    assert len(mail.outbox) == 0
+
+
+def test_activate_new_password_correct_token_uidb64_get(client, user):
+    uid = urlsafe_base64_encode(force_bytes(user.pk))
+    token = account_activation_token.make_token(user)
+    endpoint = reverse('home:password_reset_confirm', kwargs={'uidb64': uid, 'token': token})
+    response = client.get(endpoint)
+    form_in_view = response.context['form']
+    assert response.status_code == 200
+    assert isinstance(form_in_view, NewPasswordForm)
+
+
+def test_activate_new_password_wrong_token_uidb64_get(client, user):
+    uid = 'wrong'
+    token = 'wrong'
+    endpoint = reverse('home:password_reset_confirm', kwargs={'uidb64': uid, 'token': token})
+    response = client.get(endpoint)
+    messages = list(get_messages(response.wsgi_request))
+    assert response.status_code == 302
+    assert response.url.startswith(reverse('home:home'))
+    assert str(messages[0]) == "Link nie działa - wygeneruj zapytanie jeszcze raz."
+
+
+def test_activate_new_password_post(client, user):
+    uid = urlsafe_base64_encode(force_bytes(user.pk))
+    token = account_activation_token.make_token(user)
+    endpoint = reverse('home:password_reset_confirm', kwargs={'uidb64': uid, 'token': token})
+    data = {'new_password1': 'VeryStrongNewPassword1!', 'new_password2': 'VeryStrongNewPassword1!'}
+    response = client.post(endpoint, data)
+    user_with_updated_password = User.objects.get(username="test2@admin.com")
+    assert response.status_code == 302
+    assert response.url.startswith(reverse('home:home'))
+    # Check if password has been changed:
+    assert user_with_updated_password.check_password(data.get('new_password1'))
+
+
+def test_activate_new_account_get(client, user):
+    uid = urlsafe_base64_encode(force_bytes(user.pk))
+    token = account_activation_token.make_token(user)
+    endpoint = reverse('home:activate', kwargs={'uidb64': uid, 'token': token})
+    response = client.get(endpoint)
+    messages = list(get_messages(response.wsgi_request))
+    assert response.status_code == 302
+    assert response.url.startswith(reverse('home:login'))
+    assert str(messages[0]) == 'Dziękujemy za potwierdzenie emaila. Możesz się teraz zalogować.'
+
+
+def test_activate_new_account_wrong_token_uidb64_gt(client, user):
+    uid = 'wrong'
+    token = 'wrong'
+    endpoint = reverse('home:activate', kwargs={'uidb64': uid, 'token': token})
+    response = client.get(endpoint)
+    messages = list(get_messages(response.wsgi_request))
+    assert response.status_code == 302
+    assert response.url.startswith(reverse('home:home'))
+    assert str(messages[0]) == 'Link do aktywacji nie działa!'

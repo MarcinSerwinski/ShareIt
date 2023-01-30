@@ -8,10 +8,7 @@
             Witaj {{ user }}
             <ul class="dropdown">
                 <li><a href="{% url 'home:profile' %}">Profil</a></li>
-
                 <li><a href="{% url 'home:access-edit-user' %}">Ustawienia</a></li>
-
-
                 {% if user.is_superuser %}
                 <li><a href="{% url 'admin:index' %}">Panel administracyjny</a></li>{% endif %}
                 <li><a href="{% url 'home:logout' %}">Wyloguj</a></li>{% endif %}

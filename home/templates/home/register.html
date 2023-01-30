@@ -9,11 +9,20 @@
         <form action="" method="post">{% csrf_token %}
 
             <div class="form-group">
-            {% for fields in form %}
-                <ul>{{ fields }}</ul>
-            {% endfor %}
+                {% for fields in form %}
+                    <ul>{{ fields }}</ul>
+                {% endfor %}
             </div>
+            {% if messages %}
+                {% for message in messages %}
 
+                        <div class="alert alert-success alert-dismissible" role="alert">
+                            <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+                            {{ message }}
+                        </div>
+
+                {% endfor %}
+            {% endif %}
             <div class="form-group form-group--buttons">
                 <a href="{% url 'home:login' %}" class="btn btn--without-border">Zaloguj się</a>
                 <button class="btn" type="submit">Załóż konto</button>

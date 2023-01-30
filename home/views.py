@@ -7,11 +7,13 @@ from django.core.mail import EmailMessage
 from django.db.models import Sum
 from django.shortcuts import render, redirect
 from django.template.loader import render_to_string
+
+from django.urls import reverse
+
 from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.views import View
 from django.contrib import messages
-
 
 from django.contrib.auth import authenticate, login, logout, get_user_model, update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
@@ -20,7 +22,6 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ValidationError
 from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
-
 from django.db.models import Sum
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
@@ -252,6 +253,7 @@ class EditUser(LoginRequiredMixin, View):
 class Profile(LoginRequiredMixin, View):
     template_name = 'home/user.html'
 
+
     def get(self, request):
         users = get_user_model()
         user = users.objects.get(pk=request.user.pk)
@@ -277,3 +279,22 @@ class Profile(LoginRequiredMixin, View):
             donation.save()
 
         return redirect('home:profile')
+
+class Contacts(View):
+    def post(self, request):
+        name = request.POST.get("name")
+        surname = request.POST.get("surname")
+        message = request.POST.get("message")
+        admins = get_user_model().objects.filter(is_staff=True)
+        if name and surname and message:
+            mail_subject = 'Zapytanie od użytkownika strony'
+            message = f'Imię: {name}, Nazwisko: {surname}. Zapytanie: {message}'
+            admins_emails = []
+            for admin in admins:
+                admins_emails.append(admin.email)
+            email = EmailMessage(mail_subject, message, to=admins_emails)
+            email.send()
+            return redirect('home:home')
+
+        return redirect('home:home')
+

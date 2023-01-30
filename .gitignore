@@ -13,3 +13,9 @@ staticfiles
 */migrations/*
 
 notes.py
+
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+*.cover

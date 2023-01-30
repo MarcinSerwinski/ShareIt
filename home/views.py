@@ -1,13 +1,21 @@
 
-
+from django.contrib.auth import authenticate, login, logout, get_user_model, update_session_auth_hash
+from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib.auth.hashers import check_password
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.exceptions import ValidationError
 from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
+
 from django.db.models import Sum
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
 from django.views.generic import TemplateView, FormView, ListView, CreateView
 from django.contrib.auth.models import User
 from pytest_django.fixtures import django_user_model
+
+from django.contrib import messages
+
 
 from home import forms
 from home.models import *
@@ -104,10 +112,99 @@ def logout_view(request):
     return redirect('home:home')
 
 
-class Profile(View):
+class Profile(LoginRequiredMixin, View):
+    template_name = 'home/user.html'
+
     def get(self, request):
         users = get_user_model()
         user = users.objects.get(pk=request.user.pk)
+        donations = Donation.objects.filter(user=user.pk)
+
+        return render(request, self.template_name, {'user': user, 'donations': donations})
+
+    def post(self, request):
+        users = get_user_model()
+        user = users.objects.get(pk=request.user.pk)
+        donations = Donation.objects.filter(user=user).order_by('pick_up_date')
+        id_donation = request.POST.get('id_donation')
+        donation = donations.get(pk=id_donation)
+
+        if donation.is_taken:
+
+            donation.is_taken = False
+            donation.save()
+
+        elif not donation.is_taken:
+
+            donation.is_taken = True
+            donation.save()
+
+        return redirect('home:profile')
+
+
+class AccessEditUser(LoginRequiredMixin, View):
+    template_name = 'home/edit-user-access.html'
+
+    def get(self, request):
+        form = forms.UserEditAccessForm()
+        return render(request, self.template_name, {'form': form})
+
+    def post(self, request):
+        form = forms.UserEditAccessForm(request.POST)
+        if form.is_valid():
+            password_entered = form.cleaned_data['password']
+            user_password = request.user.password
+            authenticate_user = check_password(password_entered, user_password)
+            if authenticate_user:
+                return redirect('home:edit-user')
+
+            else:
+                messages.error(request, ("Podano nieprawidłowe hasło."))
+                return redirect('home:access-edit-user')
+
+
+class EditUser(LoginRequiredMixin, View):
+    template_name = 'home/edit-user.html'
+
+    def get(self, request):
+        form = forms.UserEditForm()
+        form_password = forms.UserEditPasswordForm()
+
+        return render(request, self.template_name, {'form': form, 'form_password': form_password})
+
+    def post(self, request):
+        users = get_user_model()
+        user = users.objects.get(pk=request.user.pk)
+
+        form = forms.UserEditForm(request.POST)
+        form_password = forms.UserEditPasswordForm(request.POST)
+
+        if form.is_valid():
+            user.first_name = form.cleaned_data['first_name']
+            user.last_name = form.cleaned_data['last_name']
+            user.email = form.cleaned_data['email']
+            user.username = form.cleaned_data['email']
+            user.save()
+            messages.success(request, ("Zmieniono dane."))
+            return redirect('home:edit-user')
+
+        if form_password.is_valid():
+            old_password = form_password.cleaned_data['old_password']
+            password1 = form_password.cleaned_data['password1']
+            password2 = form_password.cleaned_data['password2']
+            if user.check_password(old_password):
+                if password1 == password2:
+                    user.set_password(password1)
+                    user.save()
+                    update_session_auth_hash(request, user)
+                    return redirect('home:profile')
+                else:
+                    messages.error(request, 'Podane hasła nie są takie same!')
+                    return redirect('home:edit-user')
+            else:
+                messages.error(request, 'Stare hasło jest niepoprawne!')
+                return redirect('home:edit-user')
+
         donations = Donation.objects.filter(user=user.pk)
 
         return render(request, 'home/user.html', {'user': user, 'donations': donations})
@@ -131,3 +228,4 @@ class Profile(View):
             donation.save()
 
         return redirect('home:profile')
+

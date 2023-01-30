@@ -1,6 +1,7 @@
 from django.urls import reverse
 from pytest_django.asserts import assertTemplateUsed
 
+from home.forms import UserEditPasswordForm, UserEditForm, RegistrationForm, UserEditAccessForm
 from home.models import *
 
 
@@ -18,7 +19,9 @@ def test_landing_page_get(db,client):
 def test_registration_page_get(client):
     endpoint = reverse('home:register')
     response = client.get(endpoint)
+    form_in_url = response.context['form']
     assert response.status_code == 200
+    assert isinstance(form_in_url, RegistrationForm)
     assertTemplateUsed(response, 'home/register.html')
 
 
@@ -27,6 +30,7 @@ def test_registration_page_post(db, client):
     data = {'first_name': 'TestFirstName', 'last_name': 'TestLastName', 'email': 'test@email.com',
             'password1': 'testpass', 'password2': 'testpass'}
     response = client.post(form_url, data)
+
     assert response.status_code == 302
     assert response.url.startswith(reverse('home:login'))
     assert User.objects.get(first_name='TestFirstName')
@@ -64,6 +68,7 @@ def test_add_donation_post(db, client, user, create_institution, create_category
     assert response.url.startswith(reverse('home:home'))
     assert Donation.objects.get(address='testAddress')
 
+
 def test_user_donations_details_get(db, client, user, create_donation):
     client.force_login(user)
     endpoint = reverse('home:profile')
@@ -71,4 +76,70 @@ def test_user_donations_details_get(db, client, user, create_donation):
     assert response.status_code == 200
     assertTemplateUsed(response, 'home/user.html')
     assert "test2@admin.com" in response.content.decode('UTF-8')
+    assert "TestAddress" in response.content.decode('UTF-8')
+    assert Donation.objects.get(is_taken=False)
+
+
+def test_user_donations_details_post(db, client, user, create_donation):
+    client.force_login(user)
+    endpoint = reverse('home:profile')
+
+    data = {'id_donation': create_donation.pk}
+
+    response = client.post(endpoint, data)
+    assert response.status_code == 302
+    assert response.url.startswith(reverse('home:profile'))
+    assert Donation.objects.get(is_taken=True)
+
+
+def test_user_access_to_edit_get(db, client, user):
+    client.force_login(user)
+    endpoint = reverse('home:access-edit-user')
+    response = client.get(endpoint)
+    form_in_view = response.context['form']
+    assert response.status_code == 200
+    assert isinstance(form_in_view, UserEditAccessForm)
+
+
+def test_user_access_to_edit_post(db, client, user):
+    client.force_login(user)
+    endpoint = reverse('home:access-edit-user')
+    data = {'password': 'TestPass123'}
+
+    response = client.post(endpoint, data)
+    assert response.status_code == 302
+    assert response.url.startswith(reverse('home:edit-user'))
+
+
+def test_user_no_access_to_edit_post(db, client, user):
+    client.force_login(user)
+    endpoint = reverse('home:access-edit-user')
+    data = {'password': 'WrongPasswordForUserFixture'}
+
+    response = client.post(endpoint, data)
+    assert response.status_code == 302
+    assert response.url.startswith(reverse('home:access-edit-user'))
+
+
+def test_user_edit_get(db, client, user):
+    client.force_login(user)
+    endpoint = reverse('home:edit-user')
+    response = client.get(endpoint)
+    form_in_view = response.context['form']
+    form2_in_view = response.context['form_password']
+
+    assert response.status_code == 200
+    assertTemplateUsed(response, 'home/edit-user.html')
+    assert isinstance(form_in_view, UserEditForm)
+    assert isinstance(form2_in_view, UserEditPasswordForm)
+
+
+def test_user_edit_post(db, client, user):
+    client.force_login(user)
+    endpoint = reverse('home:edit-user')
+    data = {'first_name': 'Name', 'last_name': 'Surname', 'email': 'test@a.com'}
+
+    response = client.post(endpoint, data)
+    assert response.status_code == 302
+    assert response.url.startswith(reverse('home:edit-user'))
     assert "TestAddress" in response.content.decode('UTF-8')

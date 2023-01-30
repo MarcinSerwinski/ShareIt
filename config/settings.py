@@ -47,7 +47,7 @@ INSTALLED_APPS = [
     # 3rd party apps:
     'crispy_forms',
     'crispy_bootstrap5',
-
+    'django_advanced_password_validation',
 ]
 
 MIDDLEWARE = [
@@ -110,6 +110,30 @@ AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
+    {
+        'NAME': 'django_advanced_password_validation.advanced_password_validation.ContainsDigitsValidator',
+        'OPTIONS': {
+            'min_digits': 1
+        }
+    },
+    {
+        'NAME': 'django_advanced_password_validation.advanced_password_validation.ContainsUppercaseValidator',
+        'OPTIONS': {
+            'min_uppercase': 1
+        }
+    },
+    {
+        'NAME': 'django_advanced_password_validation.advanced_password_validation.ContainsLowercaseValidator',
+        'OPTIONS': {
+            'min_lowercase': 1
+        }
+    },
+    {
+        'NAME': 'django_advanced_password_validation.advanced_password_validation.ContainsSpecialCharactersValidator',
+        'OPTIONS': {
+            'min_characters': 1
+        }
+    },
 ]
 
 # Internationalization
@@ -144,3 +168,14 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CRISPY_ALLOWED_TEMPLATE_PACKS = 'bootstrap5'
 CRISPY_TEMPLATE_PACK = 'bootstrap5'
+
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = os.environ.get('EMAIL_HOST')
+EMAIL_PORT = os.environ.get('EMAIL_PORT')
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
+EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS')
+
+PASSWORD_RESET_TIMEOUT = 14400
+

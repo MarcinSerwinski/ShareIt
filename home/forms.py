@@ -1,11 +1,12 @@
 from django import forms
 from django.contrib.auth import get_user_model
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-
-from django.core.exceptions import ValidationError
+from django.contrib.auth.forms import UserCreationForm
 
 
-class RegistrationForm(forms.ModelForm):
+
+
+
+class RegistrationForm(UserCreationForm):
     first_name = forms.CharField(max_length=128, widget=forms.TextInput(attrs={'placeholder': 'Imię'}), label='')
     last_name = forms.CharField(max_length=128, widget=forms.TextInput(attrs={'placeholder': 'Nazwisko'}), label='')
     email = forms.EmailField(max_length=128, widget=forms.EmailInput(attrs={'placeholder': 'Email'}), label='')
@@ -15,18 +16,12 @@ class RegistrationForm(forms.ModelForm):
 
     class Meta:
         model = get_user_model()
-        fields = ['email']
-
-    def clean_password2(self):
-        password1 = self.cleaned_data.get("password1")
-        password2 = self.cleaned_data.get("password2")
-        if password1 and password2 and password1 != password2:
-            raise ValidationError('Hasła nie są takie same')
-        return password2
+        fields = ['first_name', 'last_name', 'email', 'password1', 'password2']
 
     def save(self, commit=True):
-        user = super().save(commit=False)
-        user.set_password(self.cleaned_data.get('password'))
+        user = super(RegistrationForm, self).save(commit=False)
+        user.username = self.cleaned_data['email']
+
 
         if commit:
             user.save()
@@ -53,7 +48,6 @@ class UserEditForm(forms.ModelForm):
 
 
 class UserEditPasswordForm(forms.ModelForm):
-
     old_password = forms.CharField(max_length=128, widget=forms.PasswordInput(attrs={'placeholder': 'Stare hasło'}),
                                    label='')
     password1 = forms.CharField(max_length=128, widget=forms.PasswordInput(attrs={'placeholder': 'Nowe hasło'}),
@@ -64,3 +58,4 @@ class UserEditPasswordForm(forms.ModelForm):
     class Meta:
         model = get_user_model()
         fields = []
+

@@ -1,12 +1,24 @@
 
 from django.contrib.auth import authenticate, login, logout, get_user_model, update_session_auth_hash
+from django.contrib.auth.hashers import check_password
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.sites.shortcuts import get_current_site
+from django.core.mail import EmailMessage
+from django.db.models import Sum
+from django.shortcuts import render, redirect
+from django.template.loader import render_to_string
+from django.urls import reverse
+from django.utils.encoding import force_bytes, force_str
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.views import View
+from django.contrib import messages
+from django.contrib.auth import authenticate, login, logout, get_user_model, update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.hashers import check_password
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ValidationError
 from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
-
 from django.db.models import Sum
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
@@ -19,6 +31,7 @@ from django.contrib import messages
 
 from home import forms
 from home.models import *
+from .tokens import account_activation_token
 
 
 class LandingPage(View):
@@ -76,20 +89,49 @@ class Register(View):
     def post(self, request):
         form = forms.RegistrationForm(request.POST)
         if form.is_valid():
-            email = form.cleaned_data['email']
-            password = form.cleaned_data['password1']
-            first_name = form.cleaned_data['first_name']
-            last_name = form.cleaned_data['last_name']
-            user = User()
-            user.username = email
-            user.email = email
-            user.first_name = first_name
-            user.last_name = last_name
-            user.set_password(password)
+            user = form.save(commit=False)
+            user.is_active = False
             user.save()
+            activate_email(request, user, form.cleaned_data.get('email'))
             return redirect('home:login')
         else:
             return render(request, self.template_name, {'form': form})
+
+
+def activate_email(request, user, to_email):
+    mail_subject = 'Activate your user account.'
+    message = render_to_string('home/template_activate_account.html', {
+        'user': user,
+        'domain': get_current_site(request).domain,
+        'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+        'token': account_activation_token.make_token(user),
+        'protocol': 'https' if request.is_secure() else 'http'
+    })
+    email = EmailMessage(mail_subject, message, to=[to_email])
+    if email.send():
+        messages.success(request, f'Drogi {user}, przejdź do swojej skrzynki pocztowej w celu aktywacji konta.')
+    else:
+        messages.error(request,
+                       f'Pojawił się problem z wysłaniem maila na {to_email}, sprawdź czy nie popełniłeś literówki.')
+
+
+def activate(request, uidb64, token):
+    User = get_user_model()
+    try:
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        user = User.objects.get(pk=uid)
+    except(TypeError, ValueError, OverflowError, User.DoesNotExist):
+        user = None
+
+    if user is not None and account_activation_token.check_token(user, token):
+        user.is_active = True
+        user.save()
+        messages.success(request, 'Dziękujemy za potwierdzenie emaila. Możesz się teraz zalogować.')
+        return redirect('home:login')
+    else:
+        messages.error(request, 'Link do aktywacji nie działa!')
+
+    return redirect('home:home')
 
 
 def login_view(request):
@@ -175,7 +217,6 @@ class EditUser(LoginRequiredMixin, View):
     def post(self, request):
         users = get_user_model()
         user = users.objects.get(pk=request.user.pk)
-
         form = forms.UserEditForm(request.POST)
         form_password = forms.UserEditPasswordForm(request.POST)
 
@@ -185,7 +226,7 @@ class EditUser(LoginRequiredMixin, View):
             user.email = form.cleaned_data['email']
             user.username = form.cleaned_data['email']
             user.save()
-            messages.success(request, ("Zmieniono dane."))
+            messages.success(request, "Zmieniono dane.")
             return redirect('home:edit-user')
 
         if form_password.is_valid():
@@ -209,23 +250,20 @@ class EditUser(LoginRequiredMixin, View):
 
         return render(request, 'home/user.html', {'user': user, 'donations': donations})
 
-
+class Contacts(View):
     def post(self, request):
-        users = get_user_model()
-        user = users.objects.get(pk=request.user.pk)
-        donations = Donation.objects.filter(user=user)
-        id_donation = request.POST.get('id_donation')
-        donation = donations.get(pk=id_donation)
+        name = request.POST.get("name")
+        surname = request.POST.get("surname")
+        message = request.POST.get("message")
+        admins = get_user_model().objects.filter(is_staff=True)
+        if name and surname and message:
+            mail_subject = 'Zapytanie od użytkownika strony'
+            message = f'Imię: {name}, Nazwisko: {surname}. Zapytanie: {message}'
+            admins_emails = []
+            for admin in admins:
+                admins_emails.append(admin.email)
+            email = EmailMessage(mail_subject, message, to=admins_emails)
+            email.send()
+            return redirect('home:home')
 
-        if donation.is_taken:
-
-            donation.is_taken = False
-            donation.save()
-
-        elif not donation.is_taken:
-
-            donation.is_taken = True
-            donation.save()
-
-        return redirect('home:profile')
-
+        return redirect('home:home')

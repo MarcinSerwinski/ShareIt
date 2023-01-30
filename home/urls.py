@@ -14,4 +14,6 @@ urlpatterns = [
     path('user/', Profile.as_view(), name='profile'),
     path('user/edit/', AccessEditUser.as_view(), name='access-edit-user'),
     path('user/edit/details', EditUser.as_view(), name='edit-user'),
+    path('activate/<uidb64>/<token>', views.activate, name='activate'),
+    path('contact/', Contacts.as_view(), name='contact'),
 ]

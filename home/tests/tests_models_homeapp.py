@@ -9,7 +9,9 @@ def test_create_user(user, django_user_model):
 def test_category_content(create_category):
     category = Category.objects.all()
     assert create_category.name == 'TestNameCategory'
-    assert len(category) == 1
+    assert Category.objects.count() == 1
+
+
 
 
 def test_institution_content(create_institution):

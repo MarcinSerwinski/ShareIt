@@ -1,3 +1,4 @@
+
 from django.contrib.auth import authenticate, login, logout, get_user_model, update_session_auth_hash
 from django.contrib.auth.hashers import check_password
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -10,6 +11,26 @@ from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.views import View
 from django.contrib import messages
+
+
+from django.contrib.auth import authenticate, login, logout, get_user_model, update_session_auth_hash
+from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib.auth.hashers import check_password
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.exceptions import ValidationError
+from django.contrib.auth import authenticate, login, logout, get_user_model
+from django.contrib.auth.mixins import LoginRequiredMixin
+
+from django.db.models import Sum
+from django.shortcuts import render, redirect, get_object_or_404
+from django.views import View
+from django.views.generic import TemplateView, FormView, ListView, CreateView
+from django.contrib.auth.models import User
+from pytest_django.fixtures import django_user_model
+
+from django.contrib import messages
+
+
 from home import forms
 from home.models import *
 from .tokens import account_activation_token
@@ -226,3 +247,33 @@ class EditUser(LoginRequiredMixin, View):
             else:
                 messages.error(request, 'Stare hasło jest niepoprawne!')
                 return redirect('home:edit-user')
+
+
+class Profile(LoginRequiredMixin, View):
+    template_name = 'home/user.html'
+
+    def get(self, request):
+        users = get_user_model()
+        user = users.objects.get(pk=request.user.pk)
+        donations = Donation.objects.filter(user=user.pk)
+
+        return render(request, self.template_name, {'user': user, 'donations': donations})
+
+    def post(self, request):
+        users = get_user_model()
+        user = users.objects.get(pk=request.user.pk)
+        donations = Donation.objects.filter(user=user).order_by('pick_up_date')
+        id_donation = request.POST.get('id_donation')
+        donation = donations.get(pk=id_donation)
+
+        if donation.is_taken:
+
+            donation.is_taken = False
+            donation.save()
+
+        elif not donation.is_taken:
+
+            donation.is_taken = True
+            donation.save()
+
+        return redirect('home:profile')

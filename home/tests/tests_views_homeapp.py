@@ -9,7 +9,7 @@ from home.forms import UserEditPasswordForm, UserEditForm, RegistrationForm, Use
 from home.models import *
 
 
-def test_landing_page_get(db, client):
+def test_landing_page_get(db,client):
     endpoint = reverse('home:home')
     response = client.get(endpoint)
     assert response.status_code == 200
@@ -88,6 +88,7 @@ def test_user_donations_details_post(db, client, user, create_donation):
     client.force_login(user)
     endpoint = reverse('home:profile')
 
+
     # Check if toggling is_taken value from False to True works:
     data = {'id_donation': create_donation.pk}
     response = client.post(endpoint, data)
@@ -101,7 +102,6 @@ def test_user_donations_details_post(db, client, user, create_donation):
     assert response.status_code == 302
     assert response.url.startswith(reverse('home:profile'))
     assert Donation.objects.get(is_taken=False)
-
 
 def test_user_access_to_edit_get(db, client, user):
     client.force_login(user)
@@ -134,6 +134,7 @@ def test_user_no_access_to_edit_post(db, client, user):
     assert str(messages[0]) == "Podano nieprawidłowe hasło."
 
 
+
 def test_user_edit_get(db, client, user):
     client.force_login(user)
     endpoint = reverse('home:edit-user')
@@ -155,7 +156,6 @@ def test_user_edit_post(db, client, user):
     response = client.post(endpoint, data)
     assert response.status_code == 302
     assert response.url.startswith(reverse('home:edit-user'))
-
 
 def test_user_edit_password_post(db, client, user):
     client.force_login(user)
@@ -189,3 +189,4 @@ def test_user_edit_old_password_is_incorrect_post(db, client, user):
     assert response.url.startswith(reverse('home:edit-user'))
     assert not user.check_password(data.get('old_password'))
     assert str(messages[0]) == "Stare hasło jest niepoprawne!"
+

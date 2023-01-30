@@ -201,7 +201,6 @@ def test_contact_email_send(db, client):
     mail_subject = 'Zapytanie od użytkownika strony'
     message = f"Imię: {data['name']}, Nazwisko: {data['surname']}. Zapytanie: {data['message']}"
     mail.send_mail(mail_subject, message, 'from@djangoapp.com', ['to@someone.com'], fail_silently=False)
-
     assert response.status_code == 302
     assert response.url.startswith(reverse('home:home'))
     # Testing email:

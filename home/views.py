@@ -7,11 +7,14 @@ from django.core.mail import EmailMessage
 from django.db.models import Sum
 from django.shortcuts import render, redirect
 from django.template.loader import render_to_string
+
 from django.urls import reverse
+
 from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.views import View
 from django.contrib import messages
+
 from django.contrib.auth import authenticate, login, logout, get_user_model, update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.hashers import check_password
@@ -201,7 +204,7 @@ class AccessEditUser(LoginRequiredMixin, View):
                 return redirect('home:edit-user')
 
             else:
-                messages.error(request, ("Podano nieprawidłowe hasło."))
+                messages.error(request, "Podano nieprawidłowe hasło.")
                 return redirect('home:access-edit-user')
 
 
@@ -246,9 +249,36 @@ class EditUser(LoginRequiredMixin, View):
                 messages.error(request, 'Stare hasło jest niepoprawne!')
                 return redirect('home:edit-user')
 
+
+class Profile(LoginRequiredMixin, View):
+    template_name = 'home/user.html'
+
+
+    def get(self, request):
+        users = get_user_model()
+        user = users.objects.get(pk=request.user.pk)
         donations = Donation.objects.filter(user=user.pk)
 
-        return render(request, 'home/user.html', {'user': user, 'donations': donations})
+        return render(request, self.template_name, {'user': user, 'donations': donations})
+
+    def post(self, request):
+        users = get_user_model()
+        user = users.objects.get(pk=request.user.pk)
+        donations = Donation.objects.filter(user=user).order_by('pick_up_date')
+        id_donation = request.POST.get('id_donation')
+        donation = donations.get(pk=id_donation)
+
+        if donation.is_taken:
+
+            donation.is_taken = False
+            donation.save()
+
+        elif not donation.is_taken:
+
+            donation.is_taken = True
+            donation.save()
+
+        return redirect('home:profile')
 
 class Contacts(View):
     def post(self, request):
@@ -267,3 +297,4 @@ class Contacts(View):
             return redirect('home:home')
 
         return redirect('home:home')
+

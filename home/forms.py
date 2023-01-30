@@ -4,8 +4,6 @@ from django.contrib.auth.forms import UserCreationForm
 
 
 
-
-
 class RegistrationForm(UserCreationForm):
     first_name = forms.CharField(max_length=128, widget=forms.TextInput(attrs={'placeholder': 'Imię'}), label='')
     last_name = forms.CharField(max_length=128, widget=forms.TextInput(attrs={'placeholder': 'Nazwisko'}), label='')

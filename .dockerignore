@@ -1,0 +1,4 @@
+./code/.gitignore
+.git
+./code/htmlcov
+./code/home/notes.py

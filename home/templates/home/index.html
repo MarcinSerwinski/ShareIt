@@ -20,17 +20,12 @@
                     <em>{{ value }}</em>
                 {% endfor %}
                 <h3>Oddanych worków</h3>
-                <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Eius est beatae, quod accusamus illum
-                    tempora!</p>
             </div>
 
             <div class="stats--item">
                 <em>{{ sum_of_institutions }}</em>
                 <h3>Wspartych organizacji</h3>
-                <p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Laboriosam magnam, sint nihil cupiditate
-                    quas quam.</p>
             </div>
-
         </div>
     </section>
 
@@ -66,8 +61,7 @@
     <section id="about-us" class="about-us">
         <div class="about-us--text">
             <h2>O nas</h2>
-            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Voluptas vitae animi rem pariatur incidunt
-                libero optio esse quisquam illo omnis.</p>
+            <p>Zbieramy listę sprawdzonych instytucji, by pomóc w ich dotacji.</p>
             <img src="/static/images/signature.svg" class="about-us--text-signature" alt="Signature"/>
         </div>
         <div class="about-us--image"><img src="/static/images/about-us.jpg" alt="People in circle"/></div>
@@ -100,21 +94,14 @@
                     </div>
                 </li>{% endfor %}
             </ul>
-            <!-- Pagination
-            <ul class="help--slides-pagination">
-              <li><a href="#" class="btn btn--small btn--without-border active" data-page="1">1</a></li>
-              <li><a href="#" class="btn btn--small btn--without-border" data-page="2">2</a></li>
-              <li><a href="#" class="btn btn--small btn--without-border" data-page="3">3</a></li>
-            </ul>
-            -->
+
         </div>
 
 
         <!-- SLIDE 2 -->
         <div class="help--slides" data-id="2">
-            <p>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Hic officiis mollitia dolor, neque aspernatur
-                accusamus debitis. Ducimus, officia. Quia, sunt illum! Non iste placeat ab ipsum alias
-                quos suscipit corporis!
+            <p>W naszej bazie znajdziesz listę zweryfikowanych Organizacji, z którymi współpracujemy. Możesz sprawdzić czym
+                się zajmują, komu pomagają i czego potrzebują.
             </p>
             <ul class="help--slides-items">{% for organization in organizations %}
                 <li>
@@ -128,39 +115,23 @@
                     </div>
                 </li>{% endfor %}
             </ul>
-            <!-- Pagination
-            <ul class="help--slides-pagination">
-              <li><a href="#" class="btn btn--small btn--without-border active" data-page="1">1</a></li>
-              <li><a href="#" class="btn btn--small btn--without-border" data-page="2">2</a></li>
-              <li><a href="#" class="btn btn--small btn--without-border" data-page="3">3</a></li>
-              <li><a href="#" class="btn btn--small btn--without-border" data-page="4">4</a></li>
-              <li><a href="#" class="btn btn--small btn--without-border" data-page="5">5</a></li>
-            </ul>
-            -->
         </div>
 
         <!-- SLIDE 3 -->
         <div class="help--slides" data-id="3">
-            <p>Lorem ipsum dolor sit amet, his ocurreret persequeris ea, ad utinam laudem duo. Verterem adipisci
-                partiendo eos ne, ea his reque quaeque recteque, ne quo lobortis intellegam.</p>
+            <p>W naszej bazie znajdziesz listę zweryfikowanych Instytucji, z którymi współpracujemy. Możesz sprawdzić czym
+                się zajmują, komu pomagają i czego potrzebują.</p>
             <ul class="help--slides-items">{% for local_charity in local_charities %}
                 <li>
                     <div class="col">
                         <div class="title">{{ local_charity.name }}</div>
                         <div class="subtitle">{{ local_charity.description }}</div>
                     </div>
-
                     <div class="col">{% for categories in local_charity.categories.all %}
                         <div class="text">{{ categories.name }}</div>{% endfor %}
                     </div>
                 </li>{% endfor %}
             </ul>
-            <!-- Pagination
-            <ul class="help--slides-pagination">
-              <li><a href="#" class="btn btn--small btn--without-border active" data-page="1">1</a></li>
-              <li><a href="#" class="btn btn--small btn--without-border" data-page="2">2</a></li>
-            </ul>
-            -->
         </div>
     </section>
 {% endblock %}

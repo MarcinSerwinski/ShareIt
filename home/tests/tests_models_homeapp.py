@@ -3,7 +3,7 @@ from home.models import *
 
 def test_create_user(user, django_user_model):
     users = django_user_model.objects.all()
-    assert len(users) == 1
+    assert len(users) == 2  # superuser and user
 
 
 def test_category_content(create_category):

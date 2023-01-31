@@ -218,12 +218,12 @@ def test_contact_email_send(db, client):
     # Create email test case:
     mail_subject = 'Zapytanie od użytkownika strony'
     message = f"Imię: {data['name']}, Nazwisko: {data['surname']}. Zapytanie: {data['message']}"
-    mail.send_mail(mail_subject, message, 'from@djangoapp.com', ['to@someone.com'], fail_silently=False)
+    mail.send_mail(mail_subject, message, 'from@djangoapp.com', ['to@someone.com'])
 
     assert response.status_code == 302
     assert response.url.startswith(reverse('home:home'))
     # Testing email:
-    assert len(mail.outbox) == 1
+    assert len(mail.outbox) == 2
     assert mail.outbox[0].body == "Imię: ContactName, Nazwisko: ContactSurname. Zapytanie: ContactMessage"
     assert mail.outbox[0].subject == 'Zapytanie od użytkownika strony'
 

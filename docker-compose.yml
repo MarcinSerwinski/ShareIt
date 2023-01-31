@@ -1,0 +1,30 @@
+version: '3.9'
+
+services:
+  web:
+    build: .
+    env_file:
+      - env/.env
+    environment:
+      - DJ_SECRET_KEY=${DJ_SECRET_KEY}
+      - DJ_DEBUG=${DJ_DEBUG}
+      - DATABASE_URL=${DATABASE_URL}
+      - EMAIL_HOST_PASSWORD=${EMAIL_HOST_PASSWORD}
+      - EMAIL_HOST_USER=${EMAIL_HOST_USER}
+      - EMAIL_HOST=${EMAIL_HOST}
+      - EMAIL_PORT=${EMAIL_PORT}
+      - EMAIL_USE_TLS=${EMAIL_USE_TLS}
+    volumes:
+      - .:/code
+  web_migrate:
+    extends:
+      service: web
+    command: sh -c "
+      python manage.py makemigrations home
+      && python manage.py migrate "
+  web_run:
+    extends:
+      service: web
+    command: python manage.py runserver 0.0.0.0:8000
+    ports:
+      - "8000:8000"

@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% block container %}
+    <header>
+        {% include 'partials/_menu.html' %}
+    </header>
+
+    <section class="login-page">
+        <h2>Edycja konta:</h2>
+        <form method="post">{% csrf_token %}
+
+            <div class="form-group">
+            {% for fields in form %}
+                <ul>{{ fields }}</ul>
+            {% endfor %}
+                {% if messages %}
+                    {% for message in messages %}
+                        {% if message.tags == 'success' %}
+                            <p>{{ message }}</p>
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+
+
+            <div class="form-group form-group--buttons">
+                <button class="btn" type="submit">Potwierdź</button>
+            </div>
+            </div>
+        </form>
+        <form method="post">{% csrf_token %}
+
+            <div class="form-group">
+            {% for fields in form_password %}
+                <ul>{{ fields }}</ul>
+            {% endfor %}
+                {% if messages %}
+                    {% for message in messages %}
+                        {% if message.tags == 'error' %}
+                            <p>{{ message }}</p>
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+
+
+            <div class="form-group form-group--buttons">
+                <button class="btn" type="submit">Zmień hasło</button>
+            </div>
+            </div>
+        </form>
+    </section>
+{% endblock %}

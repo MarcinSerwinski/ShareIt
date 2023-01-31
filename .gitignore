@@ -8,4 +8,14 @@ db.sqlite3
 
 env/.env
 
+staticfiles
 
+
+
+notes.py
+
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+*.cover

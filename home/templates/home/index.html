@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+{% block container %}
+    <header class="header--main-page">
+        {% include 'partials/_menu.html' %}
+
+        <div class="slogan container container--90">
+            <div class="slogan--item">
+                <h1>
+                    Zacznij pomagać!<br/>
+                    Oddaj niechciane rzeczy w zaufane ręce
+                </h1>
+            </div>
+        </div>
+    </header>
+
+    <section id="stats" class="stats">
+        <div class="container container--85">
+            <div class="stats--item">
+                {% for key, value in sum_of_bags.items %}
+                    <em>{{ value }}</em>
+                {% endfor %}
+                <h3>Oddanych worków</h3>
+            </div>
+
+            <div class="stats--item">
+                <em>{{ sum_of_institutions }}</em>
+                <h3>Wspartych organizacji</h3>
+            </div>
+        </div>
+    </section>
+
+    <section id="steps" class="steps">
+        <h2>Wystarczą 4 proste kroki</h2>
+
+        <div class="steps--container">
+            <div class="steps--item">
+                <span class="icon icon--hands"></span>
+                <h3>Wybierz rzeczy</h3>
+                <p>ubrania, zabawki, sprzęt i inne</p>
+            </div>
+            <div class="steps--item">
+                <span class="icon icon--arrow"></span>
+                <h3>Spakuj je</h3>
+                <p>skorzystaj z worków na śmieci</p>
+            </div>
+            <div class="steps--item">
+                <span class="icon icon--glasses"></span>
+                <h3>Zdecyduj komu chcesz pomóc</h3>
+                <p>wybierz zaufane miejsce</p>
+            </div>
+            <div class="steps--item">
+                <span class="icon icon--courier"></span>
+                <h3>Zamów kuriera</h3>
+                <p>kurier przyjedzie w dogodnym terminie</p>
+            </div>
+        </div>
+
+        <a href="{% url 'home:register' %}" class="btn btn--large">Załóż konto</a>
+    </section>
+
+    <section id="about-us" class="about-us">
+        <div class="about-us--text">
+            <h2>O nas</h2>
+            <p>Zbieramy listę sprawdzonych instytucji, by pomóc w ich dotacji.</p>
+            <img src="/static/images/signature.svg" class="about-us--text-signature" alt="Signature"/>
+        </div>
+        <div class="about-us--image"><img src="/static/images/about-us.jpg" alt="People in circle"/></div>
+    </section>
+
+    <section id="help" class="help">
+        <h2>Komu pomagamy?</h2>
+
+        <ul class="help--buttons">
+            <li data-id="1"><a href="#1" class="btn btn--without-border active">Fundacjom</a></li>
+            <li data-id="2"><a href="#2" class="btn btn--without-border active">Organizacjom pozarządowym</a></li>
+            <li data-id="3"><a href="#3" class="btn btn--without-border active">Lokalnym zbiórkom</a></li>
+        </ul>
+
+        <!-- SLIDE 1 -->
+        <div class="help--slides active" data-id="1">
+            <p>W naszej bazie znajdziesz listę zweryfikowanych Fundacji, z którymi współpracujemy. Możesz sprawdzić czym
+                się zajmują, komu pomagają i czego potrzebują.</p>
+
+
+            <ul class="help--slides-items">{% for fundation in fundations %}
+                <li>
+                    <div class="col">
+                        <div class="title">{{ fundation.name }}</div>
+                        <div class="subtitle">{{ fundation.description }}</div>
+                    </div>
+
+                    <div class="col">{% for categories in fundation.categories.all %}
+                        <div class="text">{{ categories.name }}</div>{% endfor %}
+                    </div>
+                </li>{% endfor %}
+            </ul>
+
+        </div>
+
+
+        <!-- SLIDE 2 -->
+        <div class="help--slides" data-id="2">
+            <p>W naszej bazie znajdziesz listę zweryfikowanych Organizacji, z którymi współpracujemy. Możesz sprawdzić czym
+                się zajmują, komu pomagają i czego potrzebują.
+            </p>
+            <ul class="help--slides-items">{% for organization in organizations %}
+                <li>
+                    <div class="col">
+                        <div class="title">{{ organization.name }}</div>
+                        <div class="subtitle">{{ organization.description }}</div>
+                    </div>
+
+                    <div class="col">{% for categories in organization.categories.all %}
+                        <div class="text">{{ categories.name }}</div>{% endfor %}
+                    </div>
+                </li>{% endfor %}
+            </ul>
+        </div>
+
+        <!-- SLIDE 3 -->
+        <div class="help--slides" data-id="3">
+            <p>W naszej bazie znajdziesz listę zweryfikowanych Instytucji, z którymi współpracujemy. Możesz sprawdzić czym
+                się zajmują, komu pomagają i czego potrzebują.</p>
+            <ul class="help--slides-items">{% for local_charity in local_charities %}
+                <li>
+                    <div class="col">
+                        <div class="title">{{ local_charity.name }}</div>
+                        <div class="subtitle">{{ local_charity.description }}</div>
+                    </div>
+                    <div class="col">{% for categories in local_charity.categories.all %}
+                        <div class="text">{{ categories.name }}</div>{% endfor %}
+                    </div>
+                </li>{% endfor %}
+            </ul>
+        </div>
+    </section>
+{% endblock %}
+
+

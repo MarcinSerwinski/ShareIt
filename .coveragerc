@@ -3,3 +3,4 @@ omit =
    */node_modules/*
    manage.py
    config/*
+   home/migrations/*
